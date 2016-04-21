@@ -1,0 +1,2 @@
+No_of_periods_per_week,No_of_teachers,No_of_rooms,Tournament_size,Mutation_rate,Population_size,Generation_limit,Elitism
+50,21,3,2,0.05,100,100,1
