@@ -69,7 +69,7 @@ int getminfitnessid()
 	int minid = 0;
 	for(int i = 0; i<population.size(); i++)
 	{
-		double tempfitness = 0, first2Hours = 0, confAvail = 0;
+		double tempfitness = 0, first2Hours = 0, confAvail = 0, consecutiveHours = 0;
 		
 		//calculate conflicts
 		for(int j = 0; j<nperiodsperweek; j++)
@@ -93,6 +93,20 @@ int getminfitnessid()
 			}
 		}
 
+		int count = 1;
+		for(int j = 0; j < nperiodsperweek; j++){
+			if(j == count*nperiodsperweek/5-1 ){
+				++count;
+				continue;
+			}
+			for(int k = 0; k < nrooms; k++){
+				for(int l = 0; l < nrooms; l++){
+					if(population[i].table[k][j] == population[i].table[l][j+1])
+						consecutiveHours++;
+				}
+			}
+		}
+
 		int firstPeriod, secondPeriod;
 		for(int m = 0; m < nrooms; m++)
 			for(int n = 0; n < 5; n++){
@@ -104,7 +118,9 @@ int getminfitnessid()
 					first2Hours += 1;
 			}
 		
-		tempfitness = 0.9*confAvail + 0.1*first2Hours;
+			
+
+		tempfitness = 0.7*confAvail + 0.1*first2Hours + 0.2*consecutiveHours;
 
 		population[i].fitness = tempfitness;
 		if(tempfitness<minvalue)
