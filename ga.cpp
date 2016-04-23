@@ -21,6 +21,7 @@ using namespace std;
 long long randomoffset;
 int elapsedgenerations;
 
+//nperiodsperweek always multiple of 5
 int nperiodsperweek, nteachers, nrooms;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
@@ -68,7 +69,7 @@ int getminfitnessid()
 	int minid = 0;
 	for(int i = 0; i<population.size(); i++)
 	{
-		double tempfitness = 0;
+		double tempfitness = 0, first2Hours = 0, confAvail = 0;
 		
 		//calculate conflicts
 		for(int j = 0; j<nperiodsperweek; j++)
@@ -80,18 +81,31 @@ int getminfitnessid()
 					if(k!=l)
 					{
 						if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)
-						tempfitness += 1;
+						confAvail += 1;
 					}
 				}
 
 				for(int l = 0; l<nteachers; l++)
 				{
 					if(availability[l][j]==0) 
-						tempfitness += 1;
+						confAvail += 1;
 				}
 			}
 		}
+
+		int firstPeriod, secondPeriod;
+		for(int m = 0; m < nrooms; m++)
+			for(int n = 0; n < 5; n++){
+				firstPeriod = n*nperiodsperweek/5;
+				secondPeriod = n*nperiodsperweek/5+1;
+				if(population[i].table[m][firstPeriod] == EMPTY)
+					first2Hours += 1;
+				if(population[i].table[m][secondPeriod] == EMPTY)	
+					first2Hours += 1;
+			}
 		
+		tempfitness = 0.9*confAvail + 0.1*first2Hours;
+
 		population[i].fitness = tempfitness;
 		if(tempfitness<minvalue)
 		{
