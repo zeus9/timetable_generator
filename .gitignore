@@ -1,5 +1,8 @@
 .directory
 todolist
 
+#csv direcory
+.~*
+
 #executables
 a.out
