@@ -2,7 +2,8 @@
 todolist
 
 #csv direcory
-.~*
+csv/.~*
+csv/variables.csv
 
 #executables
 a.out
