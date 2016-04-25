@@ -14,10 +14,6 @@
 #define POSITIVE_INFINITY 9999
 #define EMPTY -1
 
-// add the macros for user input later in python gui 
-#define CROSSOVER_SPLIT 25/50
-//FOR 30 HOURS CROSSOVER_SPLIT 16/30
-#define CSE_FACULTY 43
 
 using namespace std;
 
@@ -29,7 +25,7 @@ int nperiodsperweek, nteachers, nrooms;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
-int elitism;
+int elitism, crossoversplit, csefaculty;
 
 vector <string> teachers;
 map <string, int> teacherid;
@@ -102,7 +98,7 @@ int getminfitnessid()
 							}
 							else
 							{
-								if(population[i].table[k][j] == population[i].table[l][j+1] && population[i].table[k][j]<CSE_FACULTY && population[i].table[l][j]<CSE_FACULTY)
+								if(population[i].table[k][j] == population[i].table[l][j+1] && population[i].table[k][j]<csefaculty)
 									consecutiveHours++;
 							}
 						}
@@ -111,7 +107,7 @@ int getminfitnessid()
 			}
 
 			
-			for(int l = 0; l<CSE_FACULTY; l++)
+			for(int l = 0; l<csefaculty; l++)
 			{
 				if(availability[l][j]==0) 
 					confAvail += 1;
@@ -131,7 +127,6 @@ int getminfitnessid()
 					first2Hours += 1;
 			}
 		
-			
 
 		tempfitness = 0.7*confAvail + 0.1*first2Hours + 0.2*consecutiveHours;
 		//cout<<"confAvail : "<<confAvail<<endl;
@@ -192,7 +187,7 @@ individual crossover(int a, int b)
 			
 			else 
 			{
-				if(j<nperiodsperweek*CROSSOVER_SPLIT)
+				if(j<crossoversplit)
 				{
 					offspring.table[i][j] = population[a].table[i][j];
 					weekperiod.erase(find(weekperiod.begin(),weekperiod.end(),offspring.table[i][j]));
@@ -252,6 +247,15 @@ void get_variables(string filename = "csv/variables.csv")
 		getline(in,var1,',');
 		val = stoi(var1);
 		elitism = val;
+
+		getline(in,var1,',');
+		val = stoi(var1);
+		crossoversplit = val;
+
+		getline(in,var1,',');
+		val = stoi(var1);
+		csefaculty = val;
+
 	}
 	if(flag == 0)
 		cout<<"\nerror: file for variables not found\n";
@@ -304,7 +308,6 @@ void get_initial(string filename = "csv/initial.csv")
 
 	if(getline(infile,line1,'\n'))
 	{
-		//cout<<line1;
 		for(int i = 0; i < nperiodsperweek && infile.good(); i++)
 		{
 
@@ -448,7 +451,6 @@ int main()
 	
 	while(elapsedgenerations < generationlimit)
 	{
-	//	cout<<"hi1\n";
 		vector <individual> newpopulation;
 		
 		//compute fitness, find minimum
