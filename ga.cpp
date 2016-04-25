@@ -13,8 +13,11 @@
 #define MAX_TEACHERS 150
 #define POSITIVE_INFINITY 9999
 #define EMPTY -1
+
+// add the macros for user input later in python gui 
 #define CROSSOVER_SPLIT 25/50
 //FOR 30 HOURS CROSSOVER_SPLIT 16/30
+#define CSE_FACULTY 43
 
 using namespace std;
 
@@ -66,7 +69,8 @@ bool randombool(double chance)
 int getminfitnessid()
 {
 	double minvalue = POSITIVE_INFINITY;
-	int minid = 0;
+	int minid = 0, count = 1;
+	
 	for(int i = 0; i<population.size(); i++)
 	{
 		double tempfitness = 0, first2Hours = 0, confAvail = 0, consecutiveHours = 0;
@@ -76,40 +80,49 @@ int getminfitnessid()
 		{
 			for(int k = 0; k<nrooms; k++)
 			{
-				for(int l = 0; l<nrooms; l++)
+				if(population[i].table[k][j] == EMPTY)
+					continue;
+				else
 				{
-					if(k!=l)
+					for(int l = 0; l<nrooms; l++)
 					{
-						if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)
-						confAvail += 1;
+						if(population[i].table[l][j] == EMPTY)
+								continue;
+						else
+						{							
+							if(k!=l)
+							{							
+								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)
+									confAvail += 1;								
+							}
+
+							if(j == count*nperiodsperweek/5-1 )
+							{	
+								++count;
+							}
+							else
+							{
+								if(population[i].table[k][j] == population[i].table[l][j+1] && population[i].table[k][j]<CSE_FACULTY && population[i].table[l][j]<CSE_FACULTY)
+									consecutiveHours++;
+							}
+						}
 					}
 				}
+			}
 
-				for(int l = 0; l<nteachers; l++)
-				{
-					if(availability[l][j]==0) 
-						confAvail += 1;
-				}
+			
+			for(int l = 0; l<CSE_FACULTY; l++)
+			{
+				if(availability[l][j]==0) 
+					confAvail += 1;
 			}
 		}
 
-		int count = 1;
-		for(int j = 0; j < nperiodsperweek; j++){
-			if(j == count*nperiodsperweek/5-1 ){
-				++count;
-				continue;
-			}
-			for(int k = 0; k < nrooms; k++){
-				for(int l = 0; l < nrooms; l++){
-					if(population[i].table[k][j] == population[i].table[l][j+1])
-						consecutiveHours++;
-				}
-			}
-		}
 
 		int firstPeriod, secondPeriod;
 		for(int m = 0; m < nrooms; m++)
-			for(int n = 0; n < 5; n++){
+			for(int n = 0; n < 5; n++)
+			{
 				firstPeriod = n*nperiodsperweek/5;
 				secondPeriod = n*nperiodsperweek/5+1;
 				if(population[i].table[m][firstPeriod] == EMPTY)
@@ -121,6 +134,10 @@ int getminfitnessid()
 			
 
 		tempfitness = 0.7*confAvail + 0.1*first2Hours + 0.2*consecutiveHours;
+		//cout<<"confAvail : "<<confAvail<<endl;
+		//cout<<"first2Hours : "<<first2Hours<<endl;
+		//cout<<"consecutiveHours : "<<consecutiveHours<<endl;
+
 
 		population[i].fitness = tempfitness;
 		if(tempfitness<minvalue)
@@ -263,7 +280,7 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 			tempstring.assign(var1);
 			
 			teachers.push_back(tempstring);
-			teacherid[tempstring]=i;
+			teacherid[tempstring] = i;
 			
 			for(int j = 0; j < nrooms && in.good(); j++)
 			{
@@ -278,7 +295,7 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 	else cout<<"\n error: file for periodcount not found\n";
 }
 
-	//stringstream linestream,varstream; 
+
 
 void get_initial(string filename = "csv/initial.csv")
 {
@@ -328,6 +345,29 @@ int main()
 	
 	get_initial();
 
+/*
+	output initial and periodcount matrices
+
+	for(int i = 0; i < nteachers; i++)
+	{
+		cout<<endl<<i<<"\t";	
+		for(int j = 0; j< nrooms; j++)
+		{
+			cout<<periodcount[j][i]<<" ";
+		}
+	}
+	cout<<endl<<endl<<endl;
+
+
+	for(int i = 0; i < nrooms; i++)
+	{
+		cout<<endl<<i<<"\t";	
+		for(int j = 0; j< nperiodsperweek; j++)
+		{
+			cout<<initial[i][j]<<" ";
+		}
+	}
+*/
 
 	for(int i = 0; i<nteachers; i++)
 	{
@@ -365,19 +405,37 @@ int main()
 
 			for(int k = 0; k<nperiodsperweek; k++)
 			{
-				if(initial[j][k]==EMPTY)
+				
+				if(initial[j][k] == EMPTY && weekperiod.size()>0)
 				{
 					tempint = randomint(0,weekperiod.size()-1);
 					newindividual.table[j][k] = weekperiod[tempint];
 					weekperiod.erase(weekperiod.begin()+tempint);
 				}
-				
-				 else
+				else 
 					newindividual.table[j][k] = initial[j][k];
 			}	
 		}
 		population.push_back(newindividual);
+
+/*
+//display individual for checking
+	for(int k = 0; k<nperiodsperweek; k++)
+	{
+		for(int j = 0; j<nrooms; j++)
+		{
+			if(population[i].table[j][k] == EMPTY)
+				cout<<"_\t";
+			else
+				cout << teachers[population[i].table[j][k]] << "\t";
+		}
+		cout << endl;
 	}
+*/
+	
+	}
+	
+
 
 	//algorithm
 	cout << "Starting genetic algorithm..." << endl;
@@ -390,6 +448,7 @@ int main()
 	
 	while(elapsedgenerations < generationlimit)
 	{
+	//	cout<<"hi1\n";
 		vector <individual> newpopulation;
 		
 		//compute fitness, find minimum
@@ -399,7 +458,8 @@ int main()
 		{
 			newpopulation.push_back(population[minid]);
 		}
-				
+			
+			
 		//crossover;
 		for(int i = elitismoffset; i<population.size(); i++)
 		{
@@ -438,11 +498,15 @@ int main()
 	int minid = getminfitnessid();
 	
 	cout << endl << "RESULT (fitness: " << population[minid].fitness << ")" << endl;
+
 	for(int i = 0; i<nperiodsperweek; i++)
 	{
 		for(int j = 0; j<nrooms; j++)
 		{
-			cout << teachers[population[minid].table[j][i]] << " ";
+			if(population[minid].table[j][i] == EMPTY)
+				cout<<"_\t";
+			else
+				cout << teachers[population[minid].table[j][i]] << "\t";
 		}
 		cout << endl;
 	}
