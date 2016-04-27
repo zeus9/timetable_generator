@@ -25,7 +25,7 @@ int nperiodsperweek, nsubjects, nrooms, labslots;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
-int elitism, crossoversplit, labCrossoversplit;// csefaculty;
+int elitism, crossoversplit, labCrossoversplit; //csefaculty;
 
 vector <string> teachers;
 map <string, int> teacherid;
@@ -282,7 +282,7 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 			teachers.push_back(tempstring);
 			teacherid[tempstring] = i;
 			
-			for(int j = 0; j < nrooms && in.good(); j++)
+			for(int j = 0; j < nrooms && linestream.good(); j++)
 			{
 				getline(linestream,var1,',');
 				
@@ -331,6 +331,28 @@ void get_initial(string filename = "csv/initial.csv")
 		}
 	}
 	else cout<<"\n error: file for initial matrix not found";
+}
+
+
+
+void get_conflicts(string filename = "csv/labCsv/labConflicts.csv")
+{
+	string line,element;
+	bool val;
+	ifstream infile(filename);
+
+	for(int i = 0; i < nsubjects && infile.good(); i++)
+	{
+		getline(infile,line,'\n');
+		stringstream linestream(line);
+		for(int j = 0; j < nsubjects && linestream.good(); j++)
+		{	
+			getline(linestream,element,',');
+			stringstream valstream(element) ;
+			valstream >> val;
+			conflicts[i][j] = val;
+		}
+	}
 }
 
 
