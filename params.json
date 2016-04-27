@@ -1,0 +1,6 @@
+{
+  "name": "Timetable generator",
+  "tagline": "Generates a timetable for our university using a genetic algorithm",
+  "body": "Timetabling is done manually in our university, Amrita Vishwa Vidyapeetham, Ettimadai, Coimbatore. It is a pretty tedious process with more than 3 faculty involved for more than 3 months and still a healthy solution is hard to come across. This project aims to solve that problem using a genetic algorithm.\r\n\r\nThe people involved in contributing to the project are  \r\n[Sambhav Jain](https://github.com/zeus9/)  \r\n[Siddarth Jawahar](https://github.com/basusisa/)  \r\n[Basil Gafoor](https://github.com/basilgafoor/)  \r\n[Sundarrajan](https://github.com/sundarg4/)  ",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
