@@ -22,8 +22,8 @@ int elapsedgenerations;
 
 //nperiodsperweek always multiple of 5
 int nperiodsperweek, nteachers, nrooms;
-int populationsize, generationlimit;
-int tournamentsize, tempint;
+int populationsize, generationlimit;											// Variables that are obtained from
+int tournamentsize, tempint;													// the python GUI
 double mutationrate;
 int elitism, crossoversplit, csefaculty;
 
@@ -35,11 +35,12 @@ class individual
 {
 	public:
 		int table[MAX_ROOMS][MAX_PERIODS_PER_WEEK];
-		double fitness;
-	
-		individual () 
+		double fitness;															// Each chromosome of population is represented by a class called
+																				// individual. The table attribute of object of class holds the master time
+		individual () 															// table of the particular chromosome.
 		{ fitness = 0; }
 };
+
 
 int initial[MAX_ROOMS][MAX_PERIODS_PER_WEEK];
 int availability[MAX_TEACHERS][MAX_PERIODS_PER_WEEK];
@@ -52,15 +53,18 @@ int randomint(int lower, int upper)
 {
 	srand(time(0)+randomoffset);
 	randomoffset = (randomoffset+1)%2823401239LL;
-	if(upper<lower) return lower;
+	if(upper<lower) return lower;					
 	return rand()%(upper-lower+1)+lower;
 }
 
-bool randombool(double chance)
+bool randombool(double chance)														// Calculates probability for mutation to occur.
 {	
 	if(randomint(0,1000000) < (long long) 1000000*chance) return true; else return false;
 }
 
+
+
+//********* The getminfitnessid() function is used to calculate the fitness of each chromosome in the population. Lower the fitness value, fitter the s=chromosome. **********//
 
 int getminfitnessid()
 {
@@ -88,28 +92,28 @@ int getminfitnessid()
 						{							
 							if(k!=l)
 							{							
-								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)
-									confAvail += 1;								
+								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)			// Checks if the same teacherid shows up in two
+									confAvail += 1;																	// rooms during the same hour in the time table.
 							}
 
-							if(j == count*nperiodsperweek/5-1 )
+							if(j == count*nperiodsperweek/5-1 )													
 							{	
-								++count;
+								++count;																			
 							}
 							else
 							{
 								if(population[i].table[k][j] == population[i].table[l][j+1] && population[i].table[k][j]<csefaculty)
 									consecutiveHours++;
 							}
-						}
-					}
+						}																							// CHecks if same faculty has 2 consecutive
+					}																								// hours of class
 				}
 			}
 
 			
 			for(int l = 0; l<csefaculty; l++)
-			{
-				if(availability[l][j]==0) 
+			{																										// Checks availability of faculty at
+				if(availability[l][j]==0) 																			// specific periods of the day.
 					confAvail += 1;
 			}
 		}
@@ -120,22 +124,22 @@ int getminfitnessid()
 			for(int n = 0; n < 5; n++)
 			{
 				firstPeriod = n*nperiodsperweek/5;
-				secondPeriod = n*nperiodsperweek/5+1;
-				if(population[i].table[m][firstPeriod] == EMPTY)
-					first2Hours += 1;
+				secondPeriod = n*nperiodsperweek/5+1;													
+				if(population[i].table[m][firstPeriod] == EMPTY)													// Checks if first 2 hours of each day of
+					first2Hours += 1;																				// the week is free.
 				if(population[i].table[m][secondPeriod] == EMPTY)	
 					first2Hours += 1;
 			}
 		
 
 		tempfitness = 0.7*confAvail + 0.1*first2Hours + 0.2*consecutiveHours;
-		//cout<<"confAvail : "<<confAvail<<endl;
+		//cout<<"confAvail : "<<confAvail<<endl;																// Calculates overall fitness of table.
 		//cout<<"first2Hours : "<<first2Hours<<endl;
 		//cout<<"consecutiveHours : "<<consecutiveHours<<endl;
 
 
 		population[i].fitness = tempfitness;
-		if(tempfitness<minvalue)
+		if(tempfitness<minvalue)																					
 		{
 			minvalue = tempfitness;
 			minid = i;
@@ -147,13 +151,16 @@ int getminfitnessid()
 }
 
 
+// ****** The tournamentselection() function picks the winner(chromosome with lesser fitness value) of two "tournaments" conducted and sends them to the crossover() function ****** //
+
 int tournamentselection()
 {
 	double tournamentminfitness = POSITIVE_INFINITY;
 	int tournamentwinnerid = 0;
 	int tempint;
 	for(int i = 0; i<tournamentsize; i++)
-	{
+	{																													
+
 		tempint = randomint(0,population.size()-1);
 		if(population[tempint].fitness < tournamentminfitness)
 		{
@@ -164,6 +171,8 @@ int tournamentselection()
 	return tournamentwinnerid;
 }
 
+
+// **** The crossover() function combines two chromosomes to form a new one causing a crossovered offsprings, which is hoped to have a higher fitness value.
 individual crossover(int a, int b)
 {
 	individual offspring;
@@ -189,14 +198,15 @@ individual crossover(int a, int b)
 			{
 				if(j<crossoversplit)
 				{
-					offspring.table[i][j] = population[a].table[i][j];
-					weekperiod.erase(find(weekperiod.begin(),weekperiod.end(),offspring.table[i][j]));
-				}
+					offspring.table[i][j] = population[a].table[i][j];												// Based on the crossover split value, 
+					weekperiod.erase(find(weekperiod.begin(),weekperiod.end(),offspring.table[i][j]));				// offspring is formed with first, portion of
+																													//'a' chromosome and then a portion of 'b'
+				}																									// chromosome.
 				
 				else 
 				{
 					offspring.table[i][j] = weekperiod[0];
-					weekperiod.erase(weekperiod.begin());
+					weekperiod.erase(weekperiod.begin());										
 				}
 			}
 		}
@@ -206,6 +216,7 @@ individual crossover(int a, int b)
 }
 
 
+// ***** reads the variable values from the csv *****//
 void get_variables(string filename = "csv/variables.csv")
 {
 	ifstream in(filename);
@@ -263,6 +274,7 @@ void get_variables(string filename = "csv/variables.csv")
 }
 
 
+// ***** Reads the periodcount values from the csv file ***** //
 void get_periodcount(string filename = "csv/periodcount.csv")
 {
 	ifstream in;
@@ -300,7 +312,7 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 }
 
 
-
+// **** Reads the initial matrix from the csv file **** //
 void get_initial(string filename = "csv/initial.csv")
 {
 	string var1, line1, tempstring;
@@ -409,14 +421,14 @@ int main()
 			for(int k = 0; k<nperiodsperweek; k++)
 			{
 				
-				if(initial[j][k] == EMPTY && weekperiod.size()>0)
+				if(initial[j][k] == EMPTY && weekperiod.size()>0)	//Enter teacher id's in empty slots of initial while weekperiod has elements left.
 				{
 					tempint = randomint(0,weekperiod.size()-1);
 					newindividual.table[j][k] = weekperiod[tempint];
 					weekperiod.erase(weekperiod.begin()+tempint);
 				}
 				else 
-					newindividual.table[j][k] = initial[j][k];
+					newindividual.table[j][k] = initial[j][k];	//copy elements from initial when week period is empty
 			}	
 		}
 		population.push_back(newindividual);
@@ -456,8 +468,8 @@ int main()
 		//compute fitness, find minimum
 		int minid = getminfitnessid();
 		double minvalue = population[minid].fitness;
-		if(elitism)
-		{
+		if(elitism)																		// if Eltisim = 1, it algorithm will isolate the fittest chromosome of
+		{																				// population from crssover and mutation processes.
 			newpopulation.push_back(population[minid]);
 		}
 			
