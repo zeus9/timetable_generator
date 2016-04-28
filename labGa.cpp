@@ -43,6 +43,7 @@ class individual
 };
 
 int initial[MAX_ROOMS][MAX_PERIODS_PER_WEEK];
+int labInitial[MAX_ROOMS][MAX_PERIODS_PER_WEEK];
 int availability[MAX_TEACHERS][MAX_PERIODS_PER_WEEK];
 int periodcount[MAX_ROOMS][MAX_TEACHERS];
 bool conflicts[MAX_TEACHERS][MAX_TEACHERS];
@@ -298,7 +299,7 @@ void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
 
 
 
-void get_initial(string filename = "csv/labsCsv/labInitial.csv")
+void get_initial(int initial_mat[MAX_ROOMS][MAX_PERIODS_PER_WEEK], string filename)
 {
 	string var1, line1, tempstring;
 	ifstream infile(filename);
@@ -325,9 +326,9 @@ void get_initial(string filename = "csv/labsCsv/labInitial.csv")
 				
 
 				if(tempstring == "_")
-					initial[j][i] = EMPTY;
+					initial_mat[j][i] = EMPTY;
 				else
-					initial[j][i] = teacherid[tempstring];
+					initial_mat[j][i] = teacherid[tempstring];
 			}
 		}
 	}
@@ -368,7 +369,8 @@ int main()
 	
 	get_periodcount();
 	get_conflicts();
-	get_initial();
+	get_initial(initial, "csv/initial.csv");
+	get_initial(labInitial, "csv/labCsv/labInitial.csv");
 
 /*
 	output initial and periodcount matrices
