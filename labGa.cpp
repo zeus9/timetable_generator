@@ -25,7 +25,7 @@ int nperiodsperweek, nsubjects, nrooms, labslots;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
-int elitism, crossoversplit, labCrossoversplit;// csefaculty;
+int elitism, crossoversplit, labCrossoversplit; // csefaculty;
 
 vector <string> teachers;
 map <string, int> teacherid;
@@ -187,7 +187,7 @@ individual crossover(int a, int b)
 			
 			else 
 			{
-				if(j<crossoversplit)
+				if(j<labCrossoversplit)
 				{
 					offspring.table[i][j] = population[a].table[i][j];
 					weekperiod.erase(find(weekperiod.begin(),weekperiod.end(),offspring.table[i][j]));
@@ -206,7 +206,7 @@ individual crossover(int a, int b)
 }
 
 
-void get_variables(string filename = "csv/variables.csv")
+void get_variables(string filename = "csv/labsCsv/labvariables.csv")
 {
 	ifstream in(filename);
 	string line1,var1;
@@ -259,7 +259,7 @@ void get_variables(string filename = "csv/variables.csv")
 }
 
 
-void get_periodcount(string filename = "csv/periodcount.csv")
+void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
 {
 	ifstream in;
 	string tempstring;
@@ -287,7 +287,7 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 				getline(linestream,var1,',');
 				
 				int val = stoi(var1);
-				periodcount[j][i] = val;
+				periodcount[j][i] = val/2;
 
 			}
 		}
@@ -297,7 +297,7 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 
 
 
-void get_initial(string filename = "csv/initial.csv")
+void get_initial(string filename = "csv/labsCsv/labInitial.csv")
 {
 	string var1, line1, tempstring;
 	ifstream infile(filename);
@@ -405,10 +405,23 @@ int main()
 				weekperiod.insert(weekperiod.end(), periodcount[j][k],k);
 			}
 
-			for(int k = 0; k<nperiodsperweek; k++)
+			for(int k = 0; k<labslots/5; k++)
 			{
-				
-				if(initial[j][k] == EMPTY && weekperiod.size()>0)
+				for(int l = k; l<labslots ; l+=labslots/5)
+				{
+					if(weekperiod.size()>0)
+					{
+						tempint = randomint(0,weekperiod.size()-1);
+						newindividual.table[j][l] = weekperiod[tempint];			//Spaced entering of teacher ids, which pushes free
+						weekperiod.erase(weekperiod.begin()+tempint);				//hrs for end of day
+					}
+
+					else
+						newindividual.table[j][l] = EMPTY;
+
+				}
+
+/*				if(initial[j][k] == EMPTY && weekperiod.size()>0)
 				{
 					tempint = randomint(0,weekperiod.size()-1);
 					newindividual.table[j][k] = weekperiod[tempint];
@@ -416,13 +429,14 @@ int main()
 				}
 				else 
 					newindividual.table[j][k] = initial[j][k];
-			}	
+*/
+			}
 		}
 		population.push_back(newindividual);
 
-/*
+
 //display individual for checking
-	for(int k = 0; k<nperiodsperweek; k++)
+	for(int k = 0; k<labslots; k++)
 	{
 		for(int j = 0; j<nrooms; j++)
 		{
@@ -433,7 +447,7 @@ int main()
 		}
 		cout << endl;
 	}
-*/
+
 	
 	}
 	
@@ -511,6 +525,7 @@ int main()
 		}
 		cout << endl;
 	}
+
 	
 return 0;
 
