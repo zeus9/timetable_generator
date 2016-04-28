@@ -366,7 +366,7 @@ int main()
 	string tempstring;
 	
 	get_periodcount();
-	
+	get_conflicts();
 	get_initial();
 
 /*
