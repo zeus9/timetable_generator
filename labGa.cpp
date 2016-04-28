@@ -25,7 +25,8 @@ int nperiodsperweek, nsubjects, nrooms, labslots;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
-int elitism, crossoversplit, labCrossoversplit; //csefaculty;
+int elitism, crossoversplit, labCrossoversplit;	//csefaculty;
+
 
 vector <string> teachers;
 map <string, int> teacherid;
@@ -65,34 +66,85 @@ bool randombool(double chance)
 int getminfitnessid()
 {
 	double minvalue = POSITIVE_INFINITY;
-	int minid = 0, count = 1;
+	int minid = 0, count = 0;
+	string kteacher, lteacher, ktid, ltid;
+	int n=0;
+	int kroom, lroom;
 	
 	for(int i = 0; i<population.size(); i++)
 	{
-		double tempfitness = 0, first2Hours = 0, confAvail = 0, consecutiveHours = 0;
+		double tempfitness = 0, first2Hours = 0, confAvail = 0, oneLabperday = 0;
 		
 		//calculate conflicts
-		for(int j = 0; j<nperiodsperweek; j++)
+		for(int j = 0; j<labslots; j++)
 		{
+
+			if(j%6==0)
+				count+=1;
+
 			for(int k = 0; k<nrooms; k++)
 			{
 				if(population[i].table[k][j] == EMPTY)
 					continue;
+
 				else
-				{
-					for(int l = 0; l<nrooms; l++)
+				{	
+					kteacher = teachers[population[i].table[k][j]];
+					for(int m = 0; m<kteacher.size(); m++)
+					{
+
+						if(kteacher[m]=='r')
+						{
+							kroom = stoi(kteacher.substr(m+1,kteacher.size()-1));
+						}
+					
+
+						if(kteacher[m] == '/')
+							ktid = kteacher.substr(0,m-1);
+					}
+
+
+					for(int l = k; l<nrooms; l++)
 					{
 						if(population[i].table[l][j] == EMPTY)
 								continue;
 						else
-						{							
+						{	
+
 							if(k!=l)
 							{							
 								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)
-									confAvail += 1;								
+									confAvail += 1;		
+
+								for(int n = j; count*n<labslots/5; n++)
+								{
+									lteacher = teachers[population[i].table[l][n]];
+									for(int m = 0; m<lteacher.size(); m++)
+									{
+							
+										if(lteacher[m]=='r')
+										{
+											lroom = stoi(lteacher.substr(m+1,lteacher.size()-1));
+										}	
+	
+										if(lteacher[m] == '/')
+										{
+											ltid = lteacher.substr(0,m-1);
+										}
+									}	
+									
+									if(kroom == lroom)
+									{
+										oneLabperday+=1;
+										if(ktid == ltid)
+											oneLabperday+=1;
+									}	
+								}						
 							}
 
-							if(j == count*nperiodsperweek/5-1 )
+
+
+/*							if(j == count*nperiodsperweek/5-1 )
 							{	
 								++count;
 							}
@@ -101,18 +153,21 @@ int getminfitnessid()
 								if(population[i].table[k][j] == population[i].table[l][j+1] && population[i].table[k][j]<csefaculty)
 									consecutiveHours++;
 							}
+*/
 						}
 					}
 				}
 			}
 
-			
+
+/*			
 			for(int l = 0; l<csefaculty; l++)
 			{
 				if(availability[l][j]==0) 
 					confAvail += 1;
 			}
 		}
+	*/
 
 
 		int firstPeriod, secondPeriod;
@@ -125,10 +180,10 @@ int getminfitnessid()
 					first2Hours += 1;
 				if(population[i].table[m][secondPeriod] == EMPTY)	
 					first2Hours += 1;
-			}
-		
+			}	
 
-		tempfitness = 0.7*confAvail + 0.1*first2Hours + 0.2*consecutiveHours;
+
+		tempfitness = (17/30)*confAvail + (4/30)*first2Hours +  (9/30)*oneLabperday;
 		//cout<<"confAvail : "<<confAvail<<endl;
 		//cout<<"first2Hours : "<<first2Hours<<endl;
 		//cout<<"consecutiveHours : "<<consecutiveHours<<endl;
@@ -144,6 +199,8 @@ int getminfitnessid()
 	}
 
 	return minid;
+
+	}
 }
 
 
@@ -170,7 +227,7 @@ individual crossover(int a, int b)
 	for(int i = 0; i<nrooms; i++)
 	{
 		vector <int> weekperiod;
-		for(int j = 0; j<nperiodsperweek; j++)
+		for(int j = 0; j<labslots; j++)
 		{
 			if(initial[i][j] == EMPTY)
 			{
@@ -178,7 +235,7 @@ individual crossover(int a, int b)
 			}
 		}
 		
-		for(int j = 0; j<nperiodsperweek; j++)
+		for(int j = 0; j<labslots; j++)
 		{
 			if(initial[i][j] != EMPTY)
 			{
@@ -187,7 +244,7 @@ individual crossover(int a, int b)
 			
 			else 
 			{
-				if(j<crossoversplit)
+				if(j<labCrossoversplit)
 				{
 					offspring.table[i][j] = population[a].table[i][j];
 					weekperiod.erase(find(weekperiod.begin(),weekperiod.end(),offspring.table[i][j]));
@@ -206,7 +263,7 @@ individual crossover(int a, int b)
 }
 
 
-void get_variables(string filename = "csv/variables.csv")
+void get_variables(string filename = "csv/labsCsv/labvariables.csv")
 {
 	ifstream in(filename);
 	string line1,var1;
@@ -259,7 +316,7 @@ void get_variables(string filename = "csv/variables.csv")
 }
 
 
-void get_periodcount(string filename = "csv/periodcount.csv")
+void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
 {
 	ifstream in;
 	string tempstring;
@@ -287,7 +344,7 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 				getline(linestream,var1,',');
 				
 				int val = stoi(var1);
-				periodcount[j][i] = val;
+				periodcount[j][i] = val/2;
 
 			}
 		}
@@ -297,14 +354,14 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 
 
 
-void get_initial(string filename = "csv/initial.csv")
+void get_initial(string filename = "csv/labsCsv/labInitial.csv")
 {
 	string var1, line1, tempstring;
 	ifstream infile(filename);
 
 	if(getline(infile,line1,'\n'))
 	{
-		for(int i = 0; i < nperiodsperweek && infile.good(); i++)
+		for(int i = 0; i < labslots && infile.good(); i++)
 		{
 
 			getline(infile,line1,'\n');	// to ignore the initial token of hour no. in the week
@@ -428,10 +485,23 @@ int main()
 				weekperiod.insert(weekperiod.end(), periodcount[j][k],k);
 			}
 
-			for(int k = 0; k<nperiodsperweek; k++)
+			for(int k = 0; k<labslots/5; k++)
 			{
-				
-				if(initial[j][k] == EMPTY && weekperiod.size()>0)
+				for(int l = k; l<labslots ; l+=labslots/5)
+				{
+					if(weekperiod.size()>0)
+					{
+						tempint = randomint(0,weekperiod.size()-1);
+						newindividual.table[j][l] = weekperiod[tempint];			//Spaced entering of teacher ids, which pushes free
+						weekperiod.erase(weekperiod.begin()+tempint);				//hrs for end of day
+					}
+
+					else
+						newindividual.table[j][l] = EMPTY;
+
+				}
+
+/*				if(initial[j][k] == EMPTY && weekperiod.size()>0)
 				{
 					tempint = randomint(0,weekperiod.size()-1);
 					newindividual.table[j][k] = weekperiod[tempint];
@@ -439,13 +509,14 @@ int main()
 				}
 				else 
 					newindividual.table[j][k] = initial[j][k];
-			}	
+*/
+			}
 		}
 		population.push_back(newindividual);
 
-/*
+
 //display individual for checking
-	for(int k = 0; k<nperiodsperweek; k++)
+	for(int k = 0; k<labslots; k++)
 	{
 		for(int j = 0; j<nrooms; j++)
 		{
@@ -456,7 +527,7 @@ int main()
 		}
 		cout << endl;
 	}
-*/
+
 	
 	}
 	
@@ -504,8 +575,8 @@ int main()
 					int a, b;
 					do 
 					{
-						a = randomint(0,nperiodsperweek-1);
-						b = randomint(0,nperiodsperweek-1);
+						a = randomint(0,labslots-1);
+						b = randomint(0,labslots-1);
 					} while((initial[j][a]!=EMPTY) || (initial[j][b]!=EMPTY));
 					swap(newpopulation[i].table[j][a],newpopulation[i].table[j][b]);
 				}
@@ -523,7 +594,7 @@ int main()
 	
 	cout << endl << "RESULT (fitness: " << population[minid].fitness << ")" << endl;
 
-	for(int i = 0; i<nperiodsperweek; i++)
+	for(int i = 0; i<labslots; i++)
 	{
 		for(int j = 0; j<nrooms; j++)
 		{
@@ -534,6 +605,7 @@ int main()
 		}
 		cout << endl;
 	}
+
 	
 return 0;
 
