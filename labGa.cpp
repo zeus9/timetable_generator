@@ -67,34 +67,84 @@ bool randombool(double chance)
 int getminfitnessid()
 {
 	double minvalue = POSITIVE_INFINITY;
-	int minid = 0, count = 1;
+	int minid = 0, count = 0;
+	string kteacher, lteacher, ktid, ltid;
+	int n=0;
+	int kroom, lroom;
 	
 	for(int i = 0; i<population.size(); i++)
 	{
-		double tempfitness = 0, first2Hours = 0, confAvail = 0, consecutiveHours = 0;
+		double tempfitness = 0, first2Hours = 0, confAvail = 0, oneLabperday = 0;
 		
 		//calculate conflicts
-		for(int j = 0; j<nperiodsperweek; j++)
+		for(int j = 0; j<labslots; j++)
 		{
+			if((j%labslots/5)==0)
+				count+=1;
+
 			for(int k = 0; k<nlabs; k++)
 			{
 				if(population[i].table[k][j] == EMPTY)
 					continue;
+
 				else
-				{
-					for(int l = 0; l<nlabs; l++)
+				{	
+					kteacher = teachers[population[i].table[k][j]];
+					for(int m = 0; m<kteacher.size(); m++)
+					{
+
+						if(kteacher[m]=='r')
+						{
+							kroom = stoi(kteacher.substr(m+1,kteacher.size()-1));
+						}
+					
+
+						if(kteacher[m] == '/')
+							ktid = kteacher.substr(0,m-1);
+					}
+
+
+					for(int l = k+1; l<nlabs; l++)
 					{
 						if(population[i].table[l][j] == EMPTY)
 								continue;
 						else
-						{							
+						{	
+
 							if(k!=l)
 							{							
-								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)
-									confAvail += 1;								
+								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)	/* Conflict checking for teachers and corrresponding rooms called to the lab room */ 
+									confAvail += 1;
+
+								for(int n = j; n<count*labslots/5; n++)
+								{
+									lteacher = teachers[population[i].table[l][n]];
+									for(int m = 0; m<lteacher.size(); m++)
+									{
+							
+										if(lteacher[m]=='r')
+										{
+											lroom = stoi(lteacher.substr(m+1,lteacher.size()-1));
+										}	
+	
+										if(lteacher[m] == '/')
+										{
+											ltid = lteacher.substr(0,m-1);
+										}
+									}	
+									
+									if(kroom == lroom)	//checking for one lab/day for a teacher as well as a classroom
+									{
+										oneLabperday+=1;
+										if(ktid == ltid)
+											oneLabperday+=1;
+									}	
+								}						
 							}
 
-							if(j == count*nperiodsperweek/5-1 )
+
+
+/*							if(j == count*nperiodsperweek/5-1 )
 							{	
 								++count;
 							}
@@ -103,34 +153,37 @@ int getminfitnessid()
 								if(population[i].table[k][j] == population[i].table[l][j+1] && population[i].table[k][j]<csefaculty)
 									consecutiveHours++;
 							}
+*/
 						}
 					}
 				}
 			}
 
-			
+
+/*			
 			for(int l = 0; l<csefaculty; l++)
 			{
 				if(availability[l][j]==0) 
 					confAvail += 1;
 			}
 		}
+	*/
 
 
 		int firstPeriod, secondPeriod;
 		for(int m = 0; m < nlabs; m++)
 			for(int n = 0; n < 5; n++)
 			{
-				firstPeriod = n*nperiodsperweek/5;
-				secondPeriod = n*nperiodsperweek/5+1;
+				firstPeriod = n*labslots/5;
+				secondPeriod = n*labslots/5+1;
 				if(population[i].table[m][firstPeriod] == EMPTY)
 					first2Hours += 1;
 				if(population[i].table[m][secondPeriod] == EMPTY)	
 					first2Hours += 1;
-			}
-		
+			}	
 
-		tempfitness = 0.7*confAvail + 0.1*first2Hours + 0.2*consecutiveHours;
+
+		tempfitness = (17/30)*confAvail + (4/30)*first2Hours +  (9/30)*oneLabperday;
 		//cout<<"confAvail : "<<confAvail<<endl;
 		//cout<<"first2Hours : "<<first2Hours<<endl;
 		//cout<<"consecutiveHours : "<<consecutiveHours<<endl;
@@ -146,6 +199,8 @@ int getminfitnessid()
 	}
 
 	return minid;
+
+	}
 }
 
 
@@ -172,7 +227,7 @@ individual crossover(int a, int b)
 	for(int i = 0; i<nlabs; i++)
 	{
 		vector <int> weekperiod;
-		for(int j = 0; j<nperiodsperweek; j++)
+		for(int j = 0; j<labslots; j++)
 		{
 			if(initial[i][j] == EMPTY)
 			{
@@ -180,7 +235,7 @@ individual crossover(int a, int b)
 			}
 		}
 		
-		for(int j = 0; j<nperiodsperweek; j++)
+		for(int j = 0; j<labslots; j++)
 		{
 			if(initial[i][j] != EMPTY)
 			{
@@ -306,7 +361,7 @@ void get_initial(string filename = "csv/initial.csv")
 
 	if(getline(infile,line1,'\n'))
 	{
-		for(int i = 0; i < nperiodsperweek && infile.good(); i++)
+		for(int i = 0; i < labslots && infile.good(); i++)
 		{
 
 			getline(infile,line1,'\n');	// to ignore the initial token of hour no. in the week
@@ -469,6 +524,7 @@ int main()
 
 
 //display individual for checking
+/*
 	for(int k = 0; k<labslots; k++)
 	{
 		for(int j = 0; j<nlabs; j++)
@@ -483,6 +539,7 @@ int main()
 
 	
 	}
+*/
 	
 
 
@@ -528,8 +585,8 @@ int main()
 					int a, b;
 					do 
 					{
-						a = randomint(0,nperiodsperweek-1);
-						b = randomint(0,nperiodsperweek-1);
+						a = randomint(0,labslots-1);
+						b = randomint(0,labslots-1);
 					} while((initial[j][a]!=EMPTY) || (initial[j][b]!=EMPTY));
 					swap(newpopulation[i].table[j][a],newpopulation[i].table[j][b]);
 				}
@@ -547,7 +604,7 @@ int main()
 	
 	cout << endl << "RESULT (fitness: " << population[minid].fitness << ")" << endl;
 
-	for(int i = 0; i<nperiodsperweek; i++)
+	for(int i = 0; i<labslots; i++)
 	{
 		for(int j = 0; j<nrooms; j++)
 		{
