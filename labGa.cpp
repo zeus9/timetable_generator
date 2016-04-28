@@ -21,7 +21,7 @@ long long randomoffset;
 int elapsedgenerations;
 
 //nperiodsperweek always multiple of 5
-int nperiodsperweek, nsubjects, nrooms, labslots;
+int nperiodsperweek, nsubjects, nrooms, labslots, nlabs = 4;	//nlabs temporarily assigned for checking program correctness
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
@@ -76,13 +76,13 @@ int getminfitnessid()
 		//calculate conflicts
 		for(int j = 0; j<nperiodsperweek; j++)
 		{
-			for(int k = 0; k<nrooms; k++)
+			for(int k = 0; k<nlabs; k++)
 			{
 				if(population[i].table[k][j] == EMPTY)
 					continue;
 				else
 				{
-					for(int l = 0; l<nrooms; l++)
+					for(int l = 0; l<nlabs; l++)
 					{
 						if(population[i].table[l][j] == EMPTY)
 								continue;
@@ -118,7 +118,7 @@ int getminfitnessid()
 
 
 		int firstPeriod, secondPeriod;
-		for(int m = 0; m < nrooms; m++)
+		for(int m = 0; m < nlabs; m++)
 			for(int n = 0; n < 5; n++)
 			{
 				firstPeriod = n*nperiodsperweek/5;
@@ -169,7 +169,7 @@ int tournamentselection()
 individual crossover(int a, int b)
 {
 	individual offspring;
-	for(int i = 0; i<nrooms; i++)
+	for(int i = 0; i<nlabs; i++)
 	{
 		vector <int> weekperiod;
 		for(int j = 0; j<nperiodsperweek; j++)
@@ -284,7 +284,7 @@ void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
 			teachers.push_back(tempstring);
 			teacherid[tempstring] = i;
 			
-			for(int j = 0; j < nrooms && linestream.good(); j++)
+			for(int j = 0; j < nlabs && linestream.good(); j++)
 			{
 				getline(linestream,var1,',');
 				
@@ -299,7 +299,7 @@ void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
 
 
 
-void get_initial(int initial_mat[MAX_ROOMS][MAX_PERIODS_PER_WEEK], string filename)
+void get_initial(string filename = "csv/initial.csv")
 {
 	string var1, line1, tempstring;
 	ifstream infile(filename);
@@ -326,9 +326,9 @@ void get_initial(int initial_mat[MAX_ROOMS][MAX_PERIODS_PER_WEEK], string filena
 				
 
 				if(tempstring == "_")
-					initial_mat[j][i] = EMPTY;
+					initial[j][i] = EMPTY;
 				else
-					initial_mat[j][i] = teacherid[tempstring];
+					initial[j][i] = teacherid[tempstring];
 			}
 		}
 	}
@@ -369,8 +369,15 @@ int main()
 	
 	get_periodcount();
 	get_conflicts();
-	get_initial(initial, "csv/initial.csv");
-	get_initial(labInitial, "csv/labCsv/labInitial.csv");
+	get_initial();
+
+	for(int i = 0; i < nlabs; i++)
+	{
+		for(int j = 0; j < labslots; j++)
+		{
+			labinitial[i][j] = EMPTY;	//for now assuming all labs slots are empty
+		}
+	}
 
 /*
 	output initial and periodcount matrices
@@ -378,7 +385,7 @@ int main()
 	for(int i = 0; i < nsubjects; i++)
 	{
 		cout<<endl<<i<<"\t";	
-		for(int j = 0; j< nrooms; j++)
+		for(int j = 0; j< nlabs; j++)
 		{
 			cout<<periodcount[j][i]<<" ";
 		}
@@ -424,7 +431,7 @@ int main()
 	{
 		individual newindividual;
 		vector <int> weekperiod;
-		for(int j = 0; j<nrooms; j++)
+		for(int j = 0; j<nlabs; j++)
 		{
 			for(int k = 0; k<nsubjects; k++)
 			{
@@ -464,7 +471,7 @@ int main()
 //display individual for checking
 	for(int k = 0; k<labslots; k++)
 	{
-		for(int j = 0; j<nrooms; j++)
+		for(int j = 0; j<nlabs; j++)
 		{
 			if(population[i].table[j][k] == EMPTY)
 				cout<<"_\t";
