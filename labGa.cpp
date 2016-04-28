@@ -21,7 +21,7 @@ long long randomoffset;
 int elapsedgenerations;
 
 //nperiodsperweek always multiple of 5
-int nperiodsperweek, nsubjects, nrooms, labslots, nlabs = 4;	//nlabs temporarily assigned for checking program correctness
+int nperiodsperweek, nsubjects, nrooms, labslots, nlabs;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
