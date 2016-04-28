@@ -79,7 +79,7 @@ int getminfitnessid()
 		for(int j = 0; j<labslots; j++)
 		{
 
-			if(j%6==0)
+			if((j%labslots/5)==0)
 				count+=1;
 
 			for(int k = 0; k<nrooms; k++)
@@ -104,7 +104,7 @@ int getminfitnessid()
 					}
 
 
-					for(int l = k; l<nrooms; l++)
+					for(int l = k+1; l<nrooms; l++)
 					{
 						if(population[i].table[l][j] == EMPTY)
 								continue;
@@ -113,10 +113,10 @@ int getminfitnessid()
 
 							if(k!=l)
 							{							
-								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)
-									confAvail += 1;		
+								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)	/* Conflict checking for teachers and corrresponding rooms called to the lab room */ 
+									confAvail += 1;
 
-								for(int n = j; count*n<labslots/5; n++)
+								for(int n = j; n<count*labslots/5; n++)
 								{
 									lteacher = teachers[population[i].table[l][n]];
 									for(int m = 0; m<lteacher.size(); m++)
@@ -133,7 +133,7 @@ int getminfitnessid()
 										}
 									}	
 									
-									if(kroom == lroom)
+									if(kroom == lroom)	//checking for one lab/day for a teacher as well as a classroom
 									{
 										oneLabperday+=1;
 										if(ktid == ltid)
@@ -174,8 +174,8 @@ int getminfitnessid()
 		for(int m = 0; m < nrooms; m++)
 			for(int n = 0; n < 5; n++)
 			{
-				firstPeriod = n*nperiodsperweek/5;
-				secondPeriod = n*nperiodsperweek/5+1;
+				firstPeriod = n*labslots/5;
+				secondPeriod = n*labslots/5+1;
 				if(population[i].table[m][firstPeriod] == EMPTY)
 					first2Hours += 1;
 				if(population[i].table[m][secondPeriod] == EMPTY)	
@@ -516,6 +516,7 @@ int main()
 
 
 //display individual for checking
+/*
 	for(int k = 0; k<labslots; k++)
 	{
 		for(int j = 0; j<nrooms; j++)
@@ -530,6 +531,7 @@ int main()
 
 	
 	}
+*/
 	
 
 
