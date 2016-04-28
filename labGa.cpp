@@ -284,6 +284,10 @@ void get_variables(string filename = "csv/labsCsv/labvariables.csv")
 		getline(in,var1,',');
 		val = stoi(var1);
 		nrooms = val;
+
+		getline(in,var1,',');
+		val = stoi(var1);
+		nlabs = val;
 		
 		getline(in,var1,',');
 		val = stoi(var1);
