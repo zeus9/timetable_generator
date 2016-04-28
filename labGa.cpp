@@ -366,7 +366,7 @@ int main()
 	string tempstring;
 	
 	get_periodcount();
-	
+	get_conflicts();
 	get_initial();
 
 /*
@@ -402,7 +402,7 @@ int main()
 	}
 	
 
-	for(int i = 0; i<nsubjects; i++)
+	/*for(int i = 0; i<nsubjects; i++)
 	{
 		for(int j = 0; j<nsubjects; j++)
 		{
@@ -412,6 +412,7 @@ int main()
 				conflicts[i][j] = true;
 		}
 	}
+	*/
 	
 	cout << "Finished input" << endl;
 	
