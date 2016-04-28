@@ -23,7 +23,7 @@ int elapsedgenerations;
 //nperiodsperweek always multiple of 5
 int nperiodsperweek, nteachers, nrooms;
 int populationsize, generationlimit;											// Variables that are obtained from
-int tournamentsize, tempint;													// the python GUI
+int tournamentsize, tempint;													// the python GUI after input
 double mutationrate;
 int elitism, crossoversplit, csefaculty;
 
@@ -42,7 +42,7 @@ class individual
 };
 
 
-int initial[MAX_ROOMS][MAX_PERIODS_PER_WEEK];
+int initial[MAX_ROOMS][MAX_PERIODS_PER_WEEK];								
 int availability[MAX_TEACHERS][MAX_PERIODS_PER_WEEK];
 int periodcount[MAX_ROOMS][MAX_TEACHERS];
 bool conflicts[MAX_TEACHERS][MAX_TEACHERS];
@@ -51,8 +51,8 @@ vector <individual> population;
 
 int randomint(int lower, int upper)
 {
-	srand(time(0)+randomoffset);
-	randomoffset = (randomoffset+1)%2823401239LL;
+	srand(time(0)+randomoffset);														// The randomint function takes the upper and lower bound as arguments
+	randomoffset = (randomoffset+1)%2823401239LL;									    // and returns a different random value everytime it is called.
 	if(upper<lower) return lower;					
 	return rand()%(upper-lower+1)+lower;
 }
@@ -64,7 +64,7 @@ bool randombool(double chance)														// Calculates probability for mutati
 
 
 
-//********* The getminfitnessid() function is used to calculate the fitness of each chromosome in the population. Lower the fitness value, fitter the s=chromosome. **********//
+//********* The getminfitnessid() function is used to calculate the fitness of each chromosome in the population. Lower the fitness value, fitter the chromosome. **********//
 
 int getminfitnessid()
 {
@@ -105,7 +105,7 @@ int getminfitnessid()
 								if(population[i].table[k][j] == population[i].table[l][j+1] && population[i].table[k][j]<csefaculty)
 									consecutiveHours++;
 							}
-						}																							// CHecks if same faculty has 2 consecutive
+						}																							// Checks if same faculty has 2 consecutive
 					}																								// hours of class
 				}
 			}
@@ -147,7 +147,7 @@ int getminfitnessid()
 		
 	}
 
-	return minid;
+	return minid;																								// Fittest chromosome of population returned to main function
 }
 
 
@@ -159,14 +159,14 @@ int tournamentselection()
 	int tournamentwinnerid = 0;
 	int tempint;
 	for(int i = 0; i<tournamentsize; i++)
-	{																													
+	{																												
 
 		tempint = randomint(0,population.size()-1);
 		if(population[tempint].fitness < tournamentminfitness)
 		{
-			tournamentminfitness = population[tempint].fitness;
-			tournamentwinnerid = tempint;
-		}
+			tournamentminfitness = population[tempint].fitness;													// Tournament size decides selection pressure.
+			tournamentwinnerid = tempint;																		// Lesser the size, greater pressure and lesser chance
+		}																										// for less fit chromosome to participate in crossover operation.
 	}
 	return tournamentwinnerid;
 }
@@ -182,9 +182,9 @@ individual crossover(int a, int b)
 		for(int j = 0; j<nperiodsperweek; j++)
 		{
 			if(initial[i][j] == EMPTY)
-			{
-				weekperiod.push_back(population[b].table[i][j]);
-			}
+			{																										// Weekperiod vector is filled with possible  
+				weekperiod.push_back(population[b].table[i][j]);													// entries in the offspring that can be contributed by
+			}																										// chromosome 'b'.
 		}
 		
 		for(int j = 0; j<nperiodsperweek; j++)
