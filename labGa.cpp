@@ -20,12 +20,12 @@ using namespace std;
 long long randomoffset;
 int elapsedgenerations;
 
-//nperiodsperweek always multiple of 5
-int nperiodsperweek, nsubjects, nrooms, labslots, nlabs;
+//nPeriodsPerWeek always multiple of 5
+int nPeriodsPerWeek, nLabSubjects, nRooms, labslots, nLabs;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
-int elitism, crossoversplit, labCrossoversplit;	//csefaculty;
+int elitism, crossoversplit, labCrossverSplit;	//csefaculty;
 
 
 vector <string> teachers;
@@ -82,7 +82,7 @@ int getminfitnessid()
 			if((j%labslots/5)==0)
 				count+=1;
 
-			for(int k = 0; k<nlabs; k++)
+			for(int k = 0; k<nLabs; k++)
 			{
 				if(population[i].table[k][j] == EMPTY)
 					continue;
@@ -104,7 +104,7 @@ int getminfitnessid()
 					}
 
 
-					for(int l = k+1; l<nlabs; l++)
+					for(int l = k+1; l<nLabs; l++)
 					{
 						if(population[i].table[l][j] == EMPTY)
 								continue;
@@ -144,7 +144,7 @@ int getminfitnessid()
 
 
 
-/*							if(j == count*nperiodsperweek/5-1 )
+/*							if(j == count*nPeriodsPerWeek/5-1 )
 							{	
 								++count;
 							}
@@ -171,7 +171,7 @@ int getminfitnessid()
 
 
 		int firstPeriod, secondPeriod;
-		for(int m = 0; m < nlabs; m++)
+		for(int m = 0; m < nLabs; m++)
 			for(int n = 0; n < 5; n++)
 			{
 				firstPeriod = n*labslots/5;
@@ -224,7 +224,7 @@ int tournamentselection()
 individual crossover(int a, int b)
 {
 	individual offspring;
-	for(int i = 0; i<nlabs; i++)
+	for(int i = 0; i<nLabs; i++)
 	{
 		vector <int> weekperiod;
 		for(int j = 0; j<labslots; j++)
@@ -244,7 +244,7 @@ individual crossover(int a, int b)
 			
 			else 
 			{
-				if(j<labCrossoversplit)
+				if(j<labCrossverSplit)
 				{
 					offspring.table[i][j] = population[a].table[i][j];
 					weekperiod.erase(find(weekperiod.begin(),weekperiod.end(),offspring.table[i][j]));
@@ -275,19 +275,19 @@ void get_variables(string filename = "csv/labsCsv/labvariables.csv")
 		flag++;
 		getline(in,var1,',');
 		val = stoi(var1);
-		nperiodsperweek = val; 	
+		nPeriodsPerWeek = val; 	
 			
 		getline(in,var1,',');
 		val = stoi(var1);
-		nsubjects = val;
+		nLabSubjects = val;
 		
 		getline(in,var1,',');
 		val = stoi(var1);
-		nrooms = val;
+		nRooms = val;
 
 		getline(in,var1,',');
 		val = stoi(var1);
-		nlabs = val;
+		nLabs = val;
 		
 		getline(in,var1,',');
 		val = stoi(var1);
@@ -329,7 +329,7 @@ void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
 	
 	if(getline(in,line1,'\n'))
 	{
-		for(int i = 0; i < nsubjects && in.good(); i++)
+		for(int i = 0; i < nLabSubjects && in.good(); i++)
 		{
 			getline(in,line1,'\n');
 
@@ -343,7 +343,7 @@ void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
 			teachers.push_back(tempstring);
 			teacherid[tempstring] = i;
 			
-			for(int j = 0; j < nlabs && linestream.good(); j++)
+			for(int j = 0; j < nLabs && linestream.good(); j++)
 			{
 				getline(linestream,var1,',');
 				
@@ -372,13 +372,13 @@ void get_initial(string filename = "csv/initial.csv")
    			stringstream linestream(line1);			
 			getline(linestream,var1,',');	
 
-			for(int j = 0; j < nrooms; j++)
+			for(int j = 0; j < nRooms; j++)
 			{
 
      			getline(linestream,var1,',');
 				
 				// to get rid of error caused by extra '\n' in final token from a line in the file
-				if(j == nrooms-1)
+				if(j == nRooms-1)
 					tempstring.assign(var1.begin(),var1.end());
 				else
 					tempstring.assign(var1);
@@ -402,11 +402,11 @@ void get_conflicts(string filename = "csv/labCsv/labConflicts.csv")
 	bool val;
 	ifstream infile(filename);
 
-	for(int i = 0; i < nsubjects && infile.good(); i++)
+	for(int i = 0; i < nLabSubjects && infile.good(); i++)
 	{
 		getline(infile,line,'\n');
 		stringstream linestream(line);
-		for(int j = 0; j < nsubjects && linestream.good(); j++)
+		for(int j = 0; j < nLabSubjects && linestream.good(); j++)
 		{	
 			getline(linestream,element,',');
 			stringstream valstream(element) ;
@@ -421,8 +421,8 @@ int main()
 {
 	randomoffset = 0;
 	get_variables();
-	labslots = nperiodsperweek/2;
-	labCrossoversplit = crossoversplit/2;
+	labslots = nPeriodsPerWeek/2;
+	labCrossverSplit = crossoversplit/2;
 
 	string tempstring;
 	
@@ -430,7 +430,7 @@ int main()
 	get_conflicts();
 	get_initial();
 
-	for(int i = 0; i < nlabs; i++)
+	for(int i = 0; i < nLabs; i++)
 	{
 		for(int j = 0; j < labslots; j++)
 		{
@@ -441,10 +441,10 @@ int main()
 /*
 	output initial and periodcount matrices
 
-	for(int i = 0; i < nsubjects; i++)
+	for(int i = 0; i < nLabSubjects; i++)
 	{
 		cout<<endl<<i<<"\t";	
-		for(int j = 0; j< nlabs; j++)
+		for(int j = 0; j< nLabs; j++)
 		{
 			cout<<periodcount[j][i]<<" ";
 		}
@@ -452,28 +452,28 @@ int main()
 	cout<<endl<<endl<<endl;
 
 
-	for(int i = 0; i < nrooms; i++)
+	for(int i = 0; i < nRooms; i++)
 	{
 		cout<<endl<<i<<"\t";	
-		for(int j = 0; j< nperiodsperweek; j++)
+		for(int j = 0; j< nPeriodsPerWeek; j++)
 		{
 			cout<<initial[i][j]<<" ";
 		}
 	}
 */
 
-	for(int i = 0; i<nsubjects; i++)
+	for(int i = 0; i<nLabSubjects; i++)
 	{
-		for(int j = 0; j<nperiodsperweek; j++)
+		for(int j = 0; j<nPeriodsPerWeek; j++)
 		{
 				availability[i][j] = 1;
 		}
 	}
 	
 
-	/*for(int i = 0; i<nsubjects; i++)
+	/*for(int i = 0; i<nLabSubjects; i++)
 	{
-		for(int j = 0; j<nsubjects; j++)
+		for(int j = 0; j<nLabSubjects; j++)
 		{
 			if(i!=j)
 				conflicts[i][j] = false;
@@ -490,9 +490,9 @@ int main()
 	{
 		individual newindividual;
 		vector <int> weekperiod;
-		for(int j = 0; j<nlabs; j++)
+		for(int j = 0; j<nLabs; j++)
 		{
-			for(int k = 0; k<nsubjects; k++)
+			for(int k = 0; k<nLabSubjects; k++)
 			{
 				weekperiod.insert(weekperiod.end(), periodcount[j][k],k);
 			}
@@ -531,7 +531,7 @@ int main()
 /*
 	for(int k = 0; k<labslots; k++)
 	{
-		for(int j = 0; j<nlabs; j++)
+		for(int j = 0; j<nLabs; j++)
 		{
 			if(population[i].table[j][k] == EMPTY)
 				cout<<"_\t";
@@ -582,7 +582,7 @@ int main()
 		//mutate;
 		for(int i = elitismoffset; i<population.size(); i++)
 		{
-			for(int j = 0; j<nrooms; j++)
+			for(int j = 0; j<nRooms; j++)
 			{
 				if(randombool(mutationrate))
 				{
@@ -610,7 +610,7 @@ int main()
 
 	for(int i = 0; i<labslots; i++)
 	{
-		for(int j = 0; j<nrooms; j++)
+		for(int j = 0; j<nRooms; j++)
 		{
 			if(population[minid].table[j][i] == EMPTY)
 				cout<<"_\t";
