@@ -50,6 +50,34 @@ bool conflicts[MAX_TEACHERS][MAX_TEACHERS];
 individual elite;
 vector <individual> population;
 
+string return_tID(string labSub)
+{
+	string tid;
+	for(int m = 0; m<labSub.size(); m++)
+	{			
+		if(labSub[m] == '/')
+		{
+			tid = labSub.substr(0,m);
+		}
+	}
+	return tid;
+}
+
+
+int return_roomNo(string labSub)
+{
+	int room;
+	for(int m = 0; m < labSub.size(); m++)
+	{
+		if(labSub[m] == 'r')
+		{
+			room = stoi(labSub.substr(m+1));
+		}
+	}
+	return room;
+}
+
+
 int randomint(int lower, int upper)
 {
 	srand(time(0)+randomoffset);
@@ -69,20 +97,41 @@ int getminfitnessid()
 	double minvalue = POSITIVE_INFINITY;
 	int minid = 0, count = 0;
 	string kteacher, lteacher, ktid, ltid;
-	int n=0;
+	int n = 0;
 	int kroom, lroom;
+	double tempfitness = 0, first2Hours = 0, confAvail = 0, oneLabperday = 0;
 	
-	for(int i = 0; i<population.size(); i++)
+	for(int i = 0; i < population.size(); i++)
 	{
-		double tempfitness = 0, first2Hours = 0, confAvail = 0, oneLabperday = 0;
-		
-		//calculate conflicts
-		for(int j = 0; j<labslots; j++)
-		{
-			if((j%labslots/5)==0)
-				count+=1;
+		tempfitness = 0;
+		first2Hours = 0;
+		confAvail = 0;
+		oneLabperday = 0;
 
-			for(int k = 0; k<nLabs; k++)
+		for(int j = 0; j < labslots; j++)	//calculate conflicts with fixed slots in initial
+		{
+			for(int k = 0; k < nLabs; k++)
+			{
+				if(population[i].table[k][j] != EMPTY)
+				{
+					int room = return_roomNo(teachers[population[i].table[k][j]]);
+
+					if(initial[room-1][2*j] != EMPTY)	// subjective to this this slot system with 6 hours a day and 2 hour labs
+						confAvail++;					//calculate conflicts with fixed slots in initial
+					if(initial[room-1][2*j+1] != EMPTY)
+						confAvail++;
+				}
+			}	
+		}
+
+		count = 0;	//very fucking important, took 3 days to find the bug caused without this piece of shit
+		//calculate conflicts within lab classes
+		for(int j = 0; j < labslots; j++)
+		{
+			if( j%(labslots/5) == 0)
+				count += 1;
+
+			for(int k = 0; k < nLabs; k++)
 			{
 				if(population[i].table[k][j] == EMPTY)
 					continue;
@@ -90,60 +139,40 @@ int getminfitnessid()
 				else
 				{	
 					kteacher = teachers[population[i].table[k][j]];
-					for(int m = 0; m<kteacher.size(); m++)
-					{
+					int kroom = return_roomNo(kteacher);
+					string ktid = return_tID(kteacher);
 
-						if(kteacher[m]=='r')
-						{
-							kroom = stoi(kteacher.substr(m+1,kteacher.size()-1));
-						}
-					
-
-						if(kteacher[m] == '/')
-							ktid = kteacher.substr(0,m-1);
-					}
-
-
-					for(int l = k+1; l<nLabs; l++)
+					for(int l = k+1; l < nLabs; l++)
 					{
 						if(population[i].table[l][j] == EMPTY)
-								continue;
+							continue;
 						else
-						{	
-
-							if(k!=l)
-							{							
-								if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)	/* Conflict checking for teachers and corrresponding rooms called to the lab room */ 
-									confAvail += 1;
-
-								for(int n = j; n<count*labslots/5; n++)
-								{
-									lteacher = teachers[population[i].table[l][n]];
-									for(int m = 0; m<lteacher.size(); m++)
-									{
+						{								
+							if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)	/* Conflict checking for teachers and corrresponding rooms called to the lab room */ 
+								confAvail += 1;
 							
-										if(lteacher[m]=='r')
-										{
-											lroom = stoi(lteacher.substr(m+1,lteacher.size()-1));
-										}	
-	
-										if(lteacher[m] == '/')
-										{
-											ltid = lteacher.substr(0,m-1);
-										}
-									}	
-									
-									if(kroom == lroom)	//checking for one lab/day for a teacher as well as a classroom
+							//cout<<endl;
+							for(int n = j; n < count*(labslots/5); n++)
+							{
+								//cout<<n<< " ";
+								if(population[i].table[l][n] == EMPTY)
+									continue;
+
+								lteacher = teachers[population[i].table[l][n]];
+								int lroom = return_roomNo(lteacher);
+								string lid = return_tID(lteacher);	
+								
+								if(kroom == lroom)	//checking for one lab/day for a teacher as well as a classroom
+								{
+									oneLabperday += 1;
+									//cout<<kroom<<" "<<lroom<<" ";
+									if(ktid.compare(ltid) == 0)
 									{
-										oneLabperday+=1;
-										if(ktid == ltid)
-											oneLabperday+=1;
+									//	cout<<ktid<<ltid<<endl;
+										oneLabperday += 1;
 									}	
-								}						
-							}
-
-
-
+								}
+							}						
 /*							if(j == count*nPeriodsPerWeek/5-1 )
 							{	
 								++count;
@@ -158,8 +187,7 @@ int getminfitnessid()
 					}
 				}
 			}
-
-
+		}
 /*			
 			for(int l = 0; l<csefaculty; l++)
 			{
@@ -167,12 +195,10 @@ int getminfitnessid()
 					confAvail += 1;
 			}
 		}
-	*/
-
-
+*/
 		int firstPeriod, secondPeriod;
 		for(int m = 0; m < nLabs; m++)
-			for(int n = 0; n < 5; n++)
+			for(int n = 0; n < 5; n++)	//5 referring to no of days in a week
 			{
 				firstPeriod = n*labslots/5;
 				secondPeriod = n*labslots/5+1;
@@ -183,33 +209,29 @@ int getminfitnessid()
 			}	
 
 
-		tempfitness = (17/30)*confAvail + (4/30)*first2Hours +  (9/30)*oneLabperday;
+		//tempfitness = (17.0d/30)*confAvail + (4.d/30)*first2Hours + (9.0d/30)*oneLabperday;
+		tempfitness = 0.8*confAvail + 0.05*first2Hours + 0.15*oneLabperday;
+		//cout<<i<<" tempfitness : "<<tempfitness<<endl;
 		//cout<<"confAvail : "<<confAvail<<endl;
 		//cout<<"first2Hours : "<<first2Hours<<endl;
-		//cout<<"consecutiveHours : "<<consecutiveHours<<endl;
-
 
 		population[i].fitness = tempfitness;
-		if(tempfitness<minvalue)
+		if(tempfitness < minvalue)
 		{
 			minvalue = tempfitness;
 			minid = i;
 		}
-		
 	}
 
 	return minid;
-
-	}
 }
-
 
 int tournamentselection()
 {
 	double tournamentminfitness = POSITIVE_INFINITY;
 	int tournamentwinnerid = 0;
 	int tempint;
-	for(int i = 0; i<tournamentsize; i++)
+	for(int i = 0; i < tournamentsize; i++)
 	{
 		tempint = randomint(0,population.size()-1);
 		if(population[tempint].fitness < tournamentminfitness)
@@ -227,24 +249,24 @@ individual crossover(int a, int b)
 	for(int i = 0; i<nLabs; i++)
 	{
 		vector <int> weekperiod;
-		for(int j = 0; j<labslots; j++)
+		for(int j = 0; j < labslots; j++)
 		{
-			if(initial[i][j] == EMPTY)
+			if(labInitial[i][j] == EMPTY)
 			{
 				weekperiod.push_back(population[b].table[i][j]);
 			}
 		}
 		
-		for(int j = 0; j<labslots; j++)
+		for(int j = 0; j < labslots; j++)
 		{
-			if(initial[i][j] != EMPTY)
+			if(labInitial[i][j] != EMPTY)
 			{
 				offspring.table[i][j] = initial[i][j];
 			}
 			
 			else 
 			{
-				if(j<labCrossverSplit)
+				if(j < labCrossverSplit)
 				{
 					offspring.table[i][j] = population[a].table[i][j];
 					weekperiod.erase(find(weekperiod.begin(),weekperiod.end(),offspring.table[i][j]));
@@ -263,7 +285,7 @@ individual crossover(int a, int b)
 }
 
 
-void get_variables(string filename = "csv/labsCsv/labvariables.csv")
+void get_variables(string filename = "csv/labCsv/labVariables.csv")
 {
 	ifstream in(filename);
 	string line1,var1;
@@ -320,7 +342,7 @@ void get_variables(string filename = "csv/labsCsv/labvariables.csv")
 }
 
 
-void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
+void get_periodcount(string filename = "csv/labCsv/labPeriodcount.csv")
 {
 	ifstream in;
 	string tempstring;
@@ -348,7 +370,8 @@ void get_periodcount(string filename = "csv/labsCsv/labPeriodcount.csv")
 				getline(linestream,var1,',');
 				
 				int val = stoi(var1);
-				periodcount[j][i] = val/2;
+
+				periodcount[j][i] = val/2;	//for implementation labslots are considered half
 
 			}
 		}
@@ -365,7 +388,7 @@ void get_initial(string filename = "csv/initial.csv")
 
 	if(getline(infile,line1,'\n'))
 	{
-		for(int i = 0; i < labslots && infile.good(); i++)
+		for(int i = 0; i < nPeriodsPerWeek && infile.good(); i++)
 		{
 
 			getline(infile,line1,'\n');	// to ignore the initial token of hour no. in the week
@@ -430,11 +453,11 @@ int main()
 	get_conflicts();
 	get_initial();
 
-	for(int i = 0; i < nLabs; i++)
+	for(int i = 0; i < nLabs; i++)	//need to improve labInitial matrix initialization
 	{
 		for(int j = 0; j < labslots; j++)
 		{
-			labinitial[i][j] = EMPTY;	//for now assuming all labs slots are empty
+			labInitial[i][j] = EMPTY;	//for now assuming all labs slots are empty
 		}
 	}
 
@@ -499,7 +522,7 @@ int main()
 
 			for(int k = 0; k<labslots/5; k++)
 			{
-				for(int l = k; l<labslots ; l+=labslots/5)
+				for(int l = k; l<labslots; l+=labslots/5)
 				{
 					if(weekperiod.size()>0)
 					{
@@ -524,28 +547,24 @@ int main()
 */
 			}
 		}
-		population.push_back(newindividual);
-
+		population.push_back(newindividual);	
 
 //display individual for checking
 /*
-	for(int k = 0; k<labslots; k++)
-	{
-		for(int j = 0; j<nLabs; j++)
+		for(int k = 0; k<labslots; k++)
 		{
-			if(population[i].table[j][k] == EMPTY)
-				cout<<"_\t";
-			else
-				cout << teachers[population[i].table[j][k]] << "\t";
+			for(int j = 0; j<nLabs; j++)
+			{
+				if(population[i].table[j][k] == EMPTY)
+					cout<<"_\t";
+				else
+					cout << teachers[population[i].table[j][k]] << "\t";
+			}
+			cout << endl;
 		}
-		cout << endl;
-	}
-
-	
-	}
 */
+	}
 	
-
 
 	//algorithm
 	cout << "Starting genetic algorithm..." << endl;
@@ -554,7 +573,7 @@ int main()
 	int elitismoffset = 0;
 	
 	if(elitism) 
-		elitismoffset = 1;
+		elitismoffset = 1;	//can make elitism offset a variable from the python gui to monitor algorithm benchmarks 
 	
 	while(elapsedgenerations < generationlimit)
 	{
@@ -568,21 +587,20 @@ int main()
 			newpopulation.push_back(population[minid]);
 		}
 			
-			
 		//crossover;
 		for(int i = elitismoffset; i<population.size(); i++)
 		{
 			int a = tournamentselection();
 			int b = tournamentselection();
 			individual offspring = crossover(a,b);
-			newpopulation.push_back(offspring);			
+			newpopulation.push_back(offspring);		
 		}
-
+		
 		
 		//mutate;
 		for(int i = elitismoffset; i<population.size(); i++)
 		{
-			for(int j = 0; j<nRooms; j++)
+			for(int j = 0; j<nLabs; j++)
 			{
 				if(randombool(mutationrate))
 				{
@@ -610,7 +628,7 @@ int main()
 
 	for(int i = 0; i<labslots; i++)
 	{
-		for(int j = 0; j<nRooms; j++)
+		for(int j = 0; j<nLabs; j++)
 		{
 			if(population[minid].table[j][i] == EMPTY)
 				cout<<"_\t";
