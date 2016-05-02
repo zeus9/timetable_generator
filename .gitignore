@@ -5,6 +5,8 @@ todolist
 csv/.~*
 csv/variables.csv
 csv/labCsv/labVariables.csv
+csv/labCsv/labConflicts.csv
+csv/labCsv/.~*
 
 #executables
 a.out
