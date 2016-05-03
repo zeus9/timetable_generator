@@ -21,7 +21,7 @@ long long randomoffset;
 int elapsedgenerations;
 
 //nPeriodsPerWeek always multiple of 5
-int nPeriodsPerWeek, nLabSubjects, nRooms, labslots, nLabs;
+int nPeriodsPerWeek, nLabSubjects, nRooms, labslots, nLabs, firstLabRoom, lastLabRoom;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
@@ -313,6 +313,10 @@ void get_variables(string filename = "csv/labCsv/labVariables.csv")
 		
 		getline(in,var1,',');
 		val = stoi(var1);
+		firstLabRoom = val;
+		
+		getline(in,var1,',');
+		val = stoi(var1);
 		tournamentsize = val;
 		
 		getline(in,var1,',');
@@ -446,6 +450,7 @@ int main()
 	get_variables();
 	labslots = nPeriodsPerWeek/2;
 	labCrossverSplit = crossoversplit/2;
+	lastLabRoom = firstLabRoom+nLabs-1;
 
 	string tempstring;
 	
@@ -453,11 +458,11 @@ int main()
 	get_conflicts();
 	get_initial();
 
-	for(int i = 0; i < nLabs; i++)	//need to improve labInitial matrix initialization
+	for(int i = 0, p = firstLabRoom; i < nLabs && p <= lastLabRoom; i++)	//need to improve labInitial matrix initialization
 	{
-		for(int j = 0; j < labslots; j++)
+		for(int j = 0, k = 0; j < labslots && k < 30; j++, k+=2)
 		{
-			labInitial[i][j] = EMPTY;	//for now assuming all labs slots are empty
+			labInitial[i][j] = initial[p][k];	//in labs, all periods are 2 slots long
 		}
 	}
 
