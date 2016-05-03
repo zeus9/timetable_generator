@@ -116,10 +116,8 @@ int getminfitnessid()
 				{
 					int room = return_roomNo(teachers[population[i].table[k][j]]);
 
-					if(initial[room-1][2*j] != EMPTY)	// subjective to this this slot system with 6 hours a day and 2 hour labs
-						confAvail++;					//calculate conflicts with fixed slots in initial
-					if(initial[room-1][2*j+1] != EMPTY)
-						confAvail++;
+					if(initial[room-1][2*j] != EMPTY || initial[room-1][2*j+1] != EMPTY)	// subjective to this this slot system with 6 hours a day and 2 hour labs
+						confAvail++; 				//calculate conflicts with fixed slots in initial
 				}
 			}	
 		}
