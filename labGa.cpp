@@ -458,7 +458,7 @@ int main()
 
 	for(int i = 0, p = firstLabRoom; i < nLabs && p <= lastLabRoom; i++, p++)	//need to improve labInitial matrix initialization
 	{
-		for(int j = 0, k = 0; j < labslots && k < nPeriodsPerWeek; j++, k+=2)
+		for(int j = 0; j < labslots; j++)
 		{
 			labInitial[i][j] = initial[p][2*j];	//in labs, all periods are 2 slots long
 		}
@@ -641,6 +641,6 @@ int main()
 	}
 
 	
-return 0;
+	return 0;
 
 }
