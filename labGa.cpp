@@ -456,11 +456,11 @@ int main()
 	get_conflicts();
 	get_initial();
 
-	for(int i = 0, p = firstLabRoom; i < nLabs && p <= lastLabRoom; i++)	//need to improve labInitial matrix initialization
+	for(int i = 0, p = firstLabRoom; i < nLabs && p <= lastLabRoom; i++, p++)	//need to improve labInitial matrix initialization
 	{
-		for(int j = 0, k = 0; j < labslots && k < 30; j++, k+=2)
+		for(int j = 0, k = 0; j < labslots && k < nPeriodsPerWeek; j++, k+=2)
 		{
-			labInitial[i][j] = initial[p][k];	//in labs, all periods are 2 slots long
+			labInitial[i][j] = initial[p][2*j];	//in labs, all periods are 2 slots long
 		}
 	}
 
@@ -476,17 +476,16 @@ int main()
 		}
 	}
 	cout<<endl<<endl<<endl;
-
-
-	for(int i = 0; i < nRooms; i++)
+*/
+	for(int i = 0; i < nLabs; i++)
 	{
 		cout<<endl<<i<<"\t";	
-		for(int j = 0; j< nPeriodsPerWeek; j++)
+		for(int j = 0; j < labslots; j++)
 		{
-			cout<<initial[i][j]<<" ";
+			cout<<labInitial[i][j]<<" ";
 		}
 	}
-*/
+//*/
 
 	for(int i = 0; i<nLabSubjects; i++)
 	{
