@@ -476,7 +476,7 @@ int main()
 		}
 	}
 	cout<<endl<<endl<<endl;
-*/
+
 	for(int i = 0; i < nLabs; i++)
 	{
 		cout<<endl<<i<<"\t";	
@@ -485,7 +485,7 @@ int main()
 			cout<<labInitial[i][j]<<" ";
 		}
 	}
-//*/
+*/
 
 	for(int i = 0; i<nLabSubjects; i++)
 	{
