@@ -132,35 +132,24 @@ int getminfitnessid()
 			if( j%(labslots/5) == 0)
 				count += 1;
 
-			for(int n = j; n < count*(labslots/5); n++)
-			{
-
 			for(int k = 0; k < nLabs; k++)
 			{
 				if(population[i].table[k][j] == EMPTY)
 					continue;
-
-
 				else
 				{	
 					kteacher = labTeachers[population[i].table[k][j]];
 					int kroom = return_roomNo(kteacher);
 					string ktid = return_tID(kteacher);
 
-					for(int l = k; l < nLabs; l++)
-					{
-						if(population[i].table[l][j] == EMPTY)
-							continue;
-						else
-						{								
-							if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0 && k != l)	/* Conflict checking for teachers and corrresponding rooms called to the lab room */ 
-								confAvail += 1;
-							
-							//cout<<endl;	
-								//cout<<n<< " ";
-								if(population[i].table[l][n] == EMPTY)
-									continue;
-
+					for(int n = j+1; n < count*(labslots/5); n++)
+					{							
+						for(int l = 0; l < nLabs; l++)
+						{
+							if(population[i].table[l][n] == EMPTY)
+								continue;
+							else
+							{						
 								lteacher = labTeachers[population[i].table[l][n]];
 								int lroom = return_roomNo(lteacher);
 								string lid = return_tID(lteacher);	
@@ -176,16 +165,6 @@ int getminfitnessid()
 									oneLabperday += 1;
 								}
 							}						
-/*							if(j == count*nPeriodsPerWeek/5-1 )
-							{	
-								++count;
-							}
-							else
-							{
-								if(population[i].table[k][j] == population[i].table[l][j+1] && population[i].table[k][j]<csefaculty)
-									consecutiveHours++;
-							}
-*/
 						}
 					}
 				}
@@ -199,6 +178,14 @@ int getminfitnessid()
 			}
 		}
 */
+		for(int j = 0; j < labslots; j++)
+			for(int k = 0; k < nLabs; k++)
+				for(int l = k+1; l < nLabs; l++)
+					if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)
+						confAvail += 1;	/* Conflict checking for teachers and corrresponding rooms called to the lab room */ 
+
+
+
 		int firstPeriod, secondPeriod;
 		for(int m = 0; m < nLabs; m++)
 			for(int n = 0; n < 5; n++)	//5 referring to no of days in a week
@@ -214,10 +201,10 @@ int getminfitnessid()
 
 		//tempfitness = (17.0d/30)*confAvail + (4.d/30)*first2Hours + (9.0d/30)*oneLabperday;
 		tempfitness = 0.8*confAvail + 0.05*first2Hours + 0.15*oneLabperday;
-		//cout<<i<<" tempfitness : "<<tempfitness<<endl;
-		//cout<<"confAvail : "<<confAvail<<endl;
-		//cout<<"first2Hours : "<<first2Hours<<endl;
-		//cout<<"oneLabperday : "<<oneLabperday<<endl;
+		cout<<i<<" tempfitness : "<<tempfitness<<endl;
+		cout<<"confAvail : "<<confAvail<<endl;
+		cout<<"first2Hours : "<<first2Hours<<endl;
+		cout<<"oneLabperday : "<<oneLabperday<<endl;
 
 		population[i].fitness = tempfitness;
 		if(tempfitness < minvalue)
@@ -776,6 +763,8 @@ int main()
 
 	for(int i = 0; i < labslots; i++)
 	{
+		if(i%(labslots/5) == 0)
+			cout<<endl<<endl;
 		for(int j = 0 ,p = firstLabRoom-1; j < nLabs && p < lastLabRoom; j++, p++)
 		{
 			if(population[minid].table[j][i] == EMPTY)
