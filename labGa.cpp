@@ -21,15 +21,16 @@ long long randomoffset;
 int elapsedgenerations;
 
 //nPeriodsPerWeek always multiple of 5
-int nPeriodsPerWeek, nLabSubjects, nRooms, labslots, nLabs, firstLabRoom, lastLabRoom;
+int nPeriodsPerWeek, nteachers, nRooms;
+int nLabSubjects, labslots, nLabs, firstLabRoom, lastLabRoom;
 int populationsize, generationlimit;
 int tournamentsize, tempint;
 double mutationrate;
 int elitism, crossoversplit, labCrossverSplit;	//csefaculty;
 
 
-vector <string> teachers;
-map <string, int> teacherid;
+vector <string> teachers, labTeachers;
+map <string, int> teacherid, labTeacherid;
 
 
 class individual 
@@ -46,6 +47,7 @@ int initial[MAX_ROOMS][MAX_PERIODS_PER_WEEK];
 int labInitial[MAX_ROOMS][MAX_PERIODS_PER_WEEK];
 int availability[MAX_TEACHERS][MAX_PERIODS_PER_WEEK];
 int periodcount[MAX_ROOMS][MAX_TEACHERS];
+int labPeriodcount[MAX_ROOMS][MAX_TEACHERS];
 bool conflicts[MAX_TEACHERS][MAX_TEACHERS];
 individual elite;
 vector <individual> population;
@@ -103,6 +105,7 @@ int getminfitnessid()
 	
 	for(int i = 0; i < population.size(); i++)
 	{
+		//cout<<"HI"<<i<<"\n";
 		tempfitness = 0;
 		first2Hours = 0;
 		confAvail = 0;
@@ -114,7 +117,7 @@ int getminfitnessid()
 			{
 				if(population[i].table[k][j] != EMPTY)
 				{
-					int room = return_roomNo(teachers[population[i].table[k][j]]);
+					int room = return_roomNo(labTeachers[population[i].table[k][j]]);
 
 					if(initial[room-1][2*j] != EMPTY || initial[room-1][2*j+1] != EMPTY)	// subjective to this this slot system with 6 hours a day and 2 hour labs
 						confAvail++; 				//calculate conflicts with fixed slots in initial
@@ -129,46 +132,48 @@ int getminfitnessid()
 			if( j%(labslots/5) == 0)
 				count += 1;
 
+			for(int n = j; n < count*(labslots/5); n++)
+			{
+
 			for(int k = 0; k < nLabs; k++)
 			{
 				if(population[i].table[k][j] == EMPTY)
 					continue;
 
+
 				else
 				{	
-					kteacher = teachers[population[i].table[k][j]];
+					kteacher = labTeachers[population[i].table[k][j]];
 					int kroom = return_roomNo(kteacher);
 					string ktid = return_tID(kteacher);
 
-					for(int l = k+1; l < nLabs; l++)
+					for(int l = k; l < nLabs; l++)
 					{
 						if(population[i].table[l][j] == EMPTY)
 							continue;
 						else
 						{								
-							if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0)	/* Conflict checking for teachers and corrresponding rooms called to the lab room */ 
+							if(conflicts[population[i].table[k][j]][population[i].table[l][j]] != 0 && k != l)	/* Conflict checking for teachers and corrresponding rooms called to the lab room */ 
 								confAvail += 1;
 							
-							//cout<<endl;
-							for(int n = j; n < count*(labslots/5); n++)
-							{
+							//cout<<endl;	
 								//cout<<n<< " ";
 								if(population[i].table[l][n] == EMPTY)
 									continue;
 
-								lteacher = teachers[population[i].table[l][n]];
+								lteacher = labTeachers[population[i].table[l][n]];
 								int lroom = return_roomNo(lteacher);
 								string lid = return_tID(lteacher);	
 								
 								if(kroom == lroom)	//checking for one lab/day for a teacher as well as a classroom
 								{
 									oneLabperday += 1;
+								}
 									//cout<<kroom<<" "<<lroom<<" ";
-									if(ktid.compare(ltid) == 0)
-									{
-									//	cout<<ktid<<ltid<<endl;
-										oneLabperday += 1;
-									}	
+								if(ktid.compare(ltid) == 0)
+								{
+								//	cout<<ktid<<ltid<<endl;
+									oneLabperday += 1;
 								}
 							}						
 /*							if(j == count*nPeriodsPerWeek/5-1 )
@@ -212,6 +217,7 @@ int getminfitnessid()
 		//cout<<i<<" tempfitness : "<<tempfitness<<endl;
 		//cout<<"confAvail : "<<confAvail<<endl;
 		//cout<<"first2Hours : "<<first2Hours<<endl;
+		//cout<<"oneLabperday : "<<oneLabperday<<endl;
 
 		population[i].fitness = tempfitness;
 		if(tempfitness < minvalue)
@@ -299,6 +305,10 @@ void get_variables(string filename = "csv/labCsv/labVariables.csv")
 			
 		getline(in,var1,',');
 		val = stoi(var1);
+		nteachers = val;
+
+		getline(in,var1,',');
+		val = stoi(var1);
 		nLabSubjects = val;
 		
 		getline(in,var1,',');
@@ -343,8 +353,44 @@ void get_variables(string filename = "csv/labCsv/labVariables.csv")
 
 }
 
+void get_periodcount(string filename = "csv/periodcount.csv")
+{
+	ifstream in;
+	string tempstring;
+	in.open(filename);
+	string var1, var2, line1, line2;
+	
+	if(getline(in,line1,'\n'))
+	{	//cout<<"Ji\n";
+		for(int i = 0; i < nteachers && in.good(); i++)
+		{
+			getline(in,line1,'\n');
 
-void get_periodcount(string filename = "csv/labCsv/labPeriodcount.csv")
+			stringstream linestream(line1);
+			//cout<<line1<<endl;
+			getline(linestream,var1,',');
+
+			//cout<<var1<<endl;
+			tempstring.assign(var1);
+			//cout<<tempstring<<endl;
+			teachers.push_back(tempstring);
+			teacherid[tempstring] = i;
+			
+			for(int j = 0; j < nRooms && in.good(); j++)
+			{
+				getline(linestream,var1,',');
+				
+				int val = stoi(var1);
+				periodcount[j][i] = val;
+
+			}
+		}
+	}
+	else cout<<"\n error: file for periodcount not found\n";
+}
+
+
+void get_labPeriodcount(string filename = "csv/labCsv/labPeriodcount.csv")
 {
 	ifstream in;
 	string tempstring;
@@ -364,8 +410,8 @@ void get_periodcount(string filename = "csv/labCsv/labPeriodcount.csv")
 
 			tempstring.assign(var1);
 			
-			teachers.push_back(tempstring);
-			teacherid[tempstring] = i;
+			labTeachers.push_back(tempstring);
+			labTeacherid[tempstring] = i;
 			
 			for(int j = 0; j < nLabs && linestream.good(); j++)
 			{
@@ -373,12 +419,12 @@ void get_periodcount(string filename = "csv/labCsv/labPeriodcount.csv")
 				
 				int val = stoi(var1);
 
-				periodcount[j][i] = val/2;	//for implementation labslots are considered half
+				labPeriodcount[j][i] = val/2;	//for implementation labslots are considered half
 
 			}
 		}
 	}
-	else cout<<"\n error: file for periodcount not found\n";
+	else cout<<"\n error: file for labPeriodcount not found\n";
 }
 
 
@@ -441,6 +487,56 @@ void get_conflicts(string filename = "csv/labCsv/labConflicts.csv")
 	}
 }
 
+void write_output(string filename = "csv/initialLabs.csv")
+{
+	//cout<<endl<<"Helloooooooooooo"<<endl;
+	ofstream out;
+	out.open(filename);
+
+	for(int i = 0; i < nRooms; i++)
+	{//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+		out << "r" << i;
+		if( i != nRooms-1)
+			out << ",";
+		else
+			out << "\n";
+	}
+
+	for(int i = 0; i < nPeriodsPerWeek; i++)
+	{//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+		for(int j = 0; j < nRooms; j++)
+		{//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+			if(j >= firstLabRoom-1 && j <= lastLabRoom)
+			{//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+				if(initial[j][i] == EMPTY)
+					out << "_";
+				else
+					out << labTeachers[initial[j][i]];
+				//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+				
+				if( j != nRooms-1)
+					out << ",";
+				else
+					out << "\n";
+			}
+			else
+			{	
+				if(initial[j][i] == EMPTY)
+					out << "_";
+				else
+					out << teachers[initial[j][i]];
+
+				if( j != nRooms-1)
+					out << ",";
+				else
+					out << "\n";
+			}
+		}
+	}
+	out.close();
+	//	cout<<"Hehehe"<<endl;
+}
+
 
 int main()
 {
@@ -453,8 +549,17 @@ int main()
 	string tempstring;
 	
 	get_periodcount();
+	get_labPeriodcount();
+
+	//for(int i = 0; i < 55; i++)
+	//	cout<<teachers[i]<<endl;
+	//cout<<teachers[0]<<endl;
+
+	//cout<<"wwq"<<endl;
+
 	get_conflicts();
-	get_initial();
+	get_initial();	
+
 
 	for(int i = 0, p = firstLabRoom; i < nLabs && p <= lastLabRoom; i++, p++)	//need to improve labInitial matrix initialization
 	{
@@ -485,7 +590,19 @@ int main()
 			cout<<labInitial[i][j]<<" ";
 		}
 	}
+
+	//print initial
+	for(int i = 0; i < nPeriodsPerWeek; i++)
+	{
+		cout<<endl<<'p'<<i<<"\t";	
+		for(int j = 0; j < nRooms; j++)
+		{
+			cout<<initial[j][i]<<" ";
+		}
+	}
 */
+
+
 
 	for(int i = 0; i<nLabSubjects; i++)
 	{
@@ -519,7 +636,7 @@ int main()
 		{
 			for(int k = 0; k<nLabSubjects; k++)
 			{
-				weekperiod.insert(weekperiod.end(), periodcount[j][k],k);
+				weekperiod.insert(weekperiod.end(), labPeriodcount[j][k],k);
 			}
 
 			for(int k = 0; k<labslots/5; k++)
@@ -568,6 +685,7 @@ int main()
 	}
 	
 
+
 	//algorithm
 	cout << "Starting genetic algorithm..." << endl;
 		
@@ -583,6 +701,7 @@ int main()
 		
 		//compute fitness, find minimum
 		int minid = getminfitnessid();
+
 		double minvalue = population[minid].fitness;
 		if(elitism)
 		{
@@ -617,6 +736,7 @@ int main()
 			}
 		}
 		
+
 		population = newpopulation;
 
 		elapsedgenerations++;
@@ -624,10 +744,23 @@ int main()
 		cout << "Computed generation " << elapsedgenerations << ", minimum fitness at start: " << minvalue << endl;
 	}
 	
+/*
+	//print initial
+	for(int i = 0; i < nPeriodsPerWeek; i++)
+	{
+		cout<<endl<<'p'<<i<<"\t";	
+		for(int j = 0; j < nRooms; j++)
+		{
+			cout<<initial[j][i]<<" ";
+		}
+	}
+
+*/
 	int minid = getminfitnessid();
 	
 	cout << endl << "RESULT (fitness: " << population[minid].fitness << ")" << endl;
-
+	//cout<<labslots<<endl;
+/*
 	for(int i = 0; i<labslots; i++)
 	{
 		for(int j = 0; j<nLabs; j++)
@@ -639,8 +772,35 @@ int main()
 		}
 		cout << endl;
 	}
+*/
 
-	
+	for(int i = 0; i < labslots; i++)
+	{
+		for(int j = 0 ,p = firstLabRoom-1; j < nLabs && p < lastLabRoom; j++, p++)
+		{
+			if(population[minid].table[j][i] == EMPTY)
+				cout<<"_\t";
+			else
+				cout << labTeachers[population[minid].table[j][i]] << "\t";
+				
+			initial[p][2*i] = population[minid].table[j][i];	//works for system with 2 slots for lab only
+			initial[p][2*i+1] = population[minid].table[j][i];
+		}
+		cout << endl;
+	}
+/*	
+//print initial
+	for(int i = 0; i < nPeriodsPerWeek; i++)
+	{
+		cout<<endl<<'p'<<i<<"\t";	
+		for(int j = 0; j < nRooms; j++)
+		{
+			cout << initial[j][i]<<" ";
+		}
+	}
+*/
+	write_output();
+
 	return 0;
 
 }
