@@ -201,10 +201,10 @@ int getminfitnessid()
 
 		//tempfitness = (17.0d/30)*confAvail + (4.d/30)*first2Hours + (9.0d/30)*oneLabperday;
 		tempfitness = 0.8*confAvail + 0.05*first2Hours + 0.15*oneLabperday;
-		cout<<i<<" tempfitness : "<<tempfitness<<endl;
-		cout<<"confAvail : "<<confAvail<<endl;
-		cout<<"first2Hours : "<<first2Hours<<endl;
-		cout<<"oneLabperday : "<<oneLabperday<<endl;
+		//cout<<i<<" tempfitness : "<<tempfitness<<endl;
+		//cout<<"confAvail : "<<confAvail<<endl;
+		//cout<<"first2Hours : "<<first2Hours<<endl;
+		//cout<<"oneLabperday : "<<oneLabperday<<endl;
 
 		population[i].fitness = tempfitness;
 		if(tempfitness < minvalue)
@@ -476,12 +476,12 @@ void get_conflicts(string filename = "csv/labCsv/labConflicts.csv")
 
 void write_output(string filename = "csv/initialLabs.csv")
 {
-	//cout<<endl<<"Helloooooooooooo"<<endl;
+	
 	ofstream out;
 	out.open(filename);
 
 	for(int i = 0; i < nRooms; i++)
-	{//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+	{
 		out << "r" << i;
 		if( i != nRooms-1)
 			out << ",";
@@ -490,16 +490,16 @@ void write_output(string filename = "csv/initialLabs.csv")
 	}
 
 	for(int i = 0; i < nPeriodsPerWeek; i++)
-	{//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+	{
 		for(int j = 0; j < nRooms; j++)
-		{//cout<<endl<<i<<"Helloooooooooooo"<<endl;
-			if(j >= firstLabRoom-1 && j <= lastLabRoom)
-			{//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+		{
+			if(j >= firstLabRoom-1 && j <= lastLabRoom-1)
+			{
 				if(initial[j][i] == EMPTY)
 					out << "_";
 				else
 					out << labTeachers[initial[j][i]];
-				//cout<<endl<<i<<"Helloooooooooooo"<<endl;
+				
 				
 				if( j != nRooms-1)
 					out << ",";
@@ -521,7 +521,7 @@ void write_output(string filename = "csv/initialLabs.csv")
 		}
 	}
 	out.close();
-	//	cout<<"Hehehe"<<endl;
+	
 }
 
 
@@ -542,7 +542,7 @@ int main()
 	//	cout<<teachers[i]<<endl;
 	//cout<<teachers[0]<<endl;
 
-	//cout<<"wwq"<<endl;
+	
 
 	get_conflicts();
 	get_initial();	
