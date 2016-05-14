@@ -14,6 +14,7 @@
 #define POSITIVE_INFINITY 9999
 #define EMPTY -1
 #define BLOCKED -2
+#define labslot 2 	// length of a lab hour
 
 using namespace std;
 
@@ -103,11 +104,11 @@ int getminfitnessid()
 {
 	double minvalue = POSITIVE_INFINITY;
 	int minid = 0, count = 1;
-	double tempfitness, first2Hours, confAvail, consecutiveHours;
+	double tempfitness, first2Hours, confAvail, consecutiveHours, labTheory;
 
 	for(int i = 0; i<population.size(); i++)
 	{//cout<<i<<endl;
-		tempfitness = 0, first2Hours = 0, confAvail = 0, consecutiveHours = 0;
+		tempfitness = 0, first2Hours = 0, confAvail = 0, consecutiveHours = 0, labTheory = 0;
 		
 		//calculate conflicts
 		for(int j = 0; j<nperiodsperweek; j++)
@@ -143,12 +144,34 @@ int getminfitnessid()
 					}																								// hours of class
 				}
 			}
-
 			
 			for(int l = 0; l<csefaculty; l++)
 			{																										// Checks availability of faculty at
 				if(availability[l][j]==0) 																			// specific periods of the day.
 					confAvail += 1;
+			}
+		}
+
+		// constraint for no different subject theory class after a lab
+		int sameClass;
+		for(int a = firstLabRoom; a <= lastLabRoom; a++)
+		{
+			for(int b = 0; b <= nperiodsperweek-labslot; b += labslot)
+			{
+				if(labInitial[a][b-1] != EMPTY)
+					sameClass = return_roomNo(labTeachers[labInitial[a][b-1]]);
+				else 
+					continue;
+				
+				if(b%(nperiodsperweek/5) != 0)
+					for(int c = 0; c < nrooms; c++)
+					{
+						if((c <= firstLabRoom  ||  c >= lastLabRoom)  &&  c != sameClass)
+						{
+							if(population[i].table[c][b] == population[i].table[a][b-1])
+								labTheory++;
+						}
+					}
 			}
 		}
 
@@ -166,11 +189,11 @@ int getminfitnessid()
 			}
 		
 
-		tempfitness = 0.7*confAvail + 0.1*first2Hours + 0.2*consecutiveHours;
+		tempfitness = 0.65*confAvail + 0.05*first2Hours + 0.15*consecutiveHours + 0.15*labTheory;
 		//cout<<"confAvail : "<<confAvail<<endl;																// Calculates overall fitness of table.
 		//cout<<"first2Hours : "<<first2Hours<<endl;
 		//cout<<"consecutiveHours : "<<consecutiveHours<<endl;
-
+		cout<<"labTheory : "<<labTheory<<endl;
 
 		population[i].fitness = tempfitness;
 		if(tempfitness<minvalue)																					
@@ -695,7 +718,7 @@ int main()
 		}
 	}
 	
-	cout << "Finished input" << endl;
+	cout << "\nFinished input" << endl;
 	
 	//insert to population
 	for(int i = 0; i<populationsize; i++)
@@ -761,7 +784,7 @@ int main()
 		
 		//compute fitness, find minimum
 		int minid = getminfitnessid();
-
+		
 		double minvalue = population[minid].fitness;
 		if(elitism)																		// if Eltisim = 1, it algorithm will isolate the fittest chromosome of
 		{																				// population from crssover and mutation processes.
@@ -805,7 +828,7 @@ elapsedgenerations++;}
 			//cout<<"shit3\n";
 			newpopulation.push_back(offspring);
 		}
-
+//cout<<"hi\n";
 		
 		//mutate;
 		for(int i = elitismoffset; i<population.size(); i++)
@@ -832,18 +855,25 @@ elapsedgenerations++;}
 		cout << "Computed generation " << elapsedgenerations << ", minimum fitness at start: " << minvalue << endl;
 	}
 	
+	
 	int minid = getminfitnessid();
 	
 	cout << endl << "RESULT (fitness: " << population[minid].fitness << ")" << endl;
 
+	for(int i = 0; i <= nrooms; i++)
+		cout << i << "\t";
+	cout << endl << endl;
+
 	for(int i = 0; i<nperiodsperweek; i++)
-	{
+	{	cout << i+1 << "\t";
 		for(int j = 0; j<nrooms; j++)
 		{
 			if(population[minid].table[j][i] == EMPTY)
 				cout<<"_\t";
 			else if(population[minid].table[j][i] == BLOCKED)
 				cout<<"BKD\t";
+			else if(j >= firstLabRoom && j <= lastLabRoom)
+				cout << labTeachers[labInitial[j][i]] << "\t";
 			else
 				cout << teachers[population[minid].table[j][i]] << "\t";
 		}
