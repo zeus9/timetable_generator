@@ -662,7 +662,7 @@ int main()
 				if(population[i].table[j][k] == EMPTY)
 					cout<<"_\t";
 				else
-					cout << teachers[population[i].table[j][k]] << "\t";
+					cout << labTeachers[population[i].table[j][k]] << "\t";
 			}
 			cout << endl;
 		}
