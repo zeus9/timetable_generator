@@ -630,16 +630,14 @@ int main()
 			{
 				for(int l = k; l<labslots; l+=labslots/5)
 				{
-					if(weekperiod.size()>0)
+					if(weekperiod.size()>0 && labInitial[j][l] == EMPTY)
 					{
 						tempint = randomint(0,weekperiod.size()-1);
 						newindividual.table[j][l] = weekperiod[tempint];			//Spaced entering of teacher ids, which pushes free
 						weekperiod.erase(weekperiod.begin()+tempint);				//hrs for end of day
 					}
-
 					else
-						newindividual.table[j][l] = EMPTY;
-
+						newindividual.table[j][l] = labInitial[j][l];
 				}
 
 /*				if(initial[j][k] == EMPTY && weekperiod.size()>0)

@@ -732,6 +732,37 @@ int main()
 				weekperiod.insert(weekperiod.end(), periodcount[j][k],k);
 			}
 
+			for(int k = 0; k < nperiodsperweek/5 ; k++)
+			{
+				for(int l = k; l < nperiodsperweek; l += nperiodsperweek/5)
+				{
+					if(initial[j][l] == EMPTY && weekperiod.size()>0)	//Enter teacher id's in empty slots of initial while weekperiod has elements left.
+					{
+						tempint = randomint(0,weekperiod.size()-1);
+						newindividual.table[j][l] = weekperiod[tempint];
+						weekperiod.erase(weekperiod.begin()+tempint);
+					}
+					else 
+						newindividual.table[j][l] = initial[j][l];	//copy elements from initial when week period is empty
+				}	
+			}	
+		}
+		population.push_back(newindividual);
+	}
+
+/*	
+	//	Old insert to population 
+	for(int i = 0; i<populationsize; i++)
+	{
+		individual newindividual;
+		vector <int> weekperiod;
+		for(int j = 0; j<nrooms; j++)
+		{
+			for(int k = 0; k<nteachers; k++)
+			{
+				weekperiod.insert(weekperiod.end(), periodcount[j][k],k);
+			}
+
 			for(int k = 0; k<nperiodsperweek; k++)
 			{
 				
@@ -746,7 +777,6 @@ int main()
 			}	
 		}
 		population.push_back(newindividual);
-
 /*
 //display individual for checking
 	cout<<endl<<endl<<i<<endl;
@@ -764,9 +794,9 @@ int main()
 		cout << endl;
 	}	
 //*/	
-	
+/*	
 	}
-	
+*/	
 
 
 	//algorithm
