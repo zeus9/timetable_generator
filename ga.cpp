@@ -193,7 +193,7 @@ int getminfitnessid()
 		//cout<<"confAvail : "<<confAvail<<endl;																// Calculates overall fitness of table.
 		//cout<<"first2Hours : "<<first2Hours<<endl;
 		//cout<<"consecutiveHours : "<<consecutiveHours<<endl;
-		cout<<"labTheory : "<<labTheory<<endl;
+		//cout<<"labTheory : "<<labTheory<<endl;
 
 		population[i].fitness = tempfitness;
 		if(tempfitness<minvalue)																					
