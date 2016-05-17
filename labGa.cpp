@@ -480,9 +480,10 @@ void write_output(string filename = "csv/initialLabs.csv")
 	ofstream out;
 	out.open(filename);
 
+	out << "p_no,";
 	for(int i = 0; i < nRooms; i++)
 	{
-		out << "r" << i;
+		out << "r" << i+1;
 		if( i != nRooms-1)
 			out << ",";
 		else
@@ -491,6 +492,7 @@ void write_output(string filename = "csv/initialLabs.csv")
 
 	for(int i = 0; i < nPeriodsPerWeek; i++)
 	{
+		out << "p" << i+1 << ",";
 		for(int j = 0; j < nRooms; j++)
 		{
 			if(j >= firstLabRoom-1 && j <= lastLabRoom-1)
@@ -499,12 +501,6 @@ void write_output(string filename = "csv/initialLabs.csv")
 					out << "_";
 				else
 					out << labTeachers[initial[j][i]];
-				
-				
-				if( j != nRooms-1)
-					out << ",";
-				else
-					out << "\n";
 			}
 			else
 			{	
@@ -512,12 +508,12 @@ void write_output(string filename = "csv/initialLabs.csv")
 					out << "_";
 				else
 					out << teachers[initial[j][i]];
-
-				if( j != nRooms-1)
-					out << ",";
-				else
-					out << "\n";
 			}
+			
+			if( j != nRooms-1)
+				out << ",";
+			else
+				out << "\n";
 		}
 	}
 	out.close();
@@ -662,7 +658,7 @@ int main()
 				if(population[i].table[j][k] == EMPTY)
 					cout<<"_\t";
 				else
-					cout << labTeachers[population[i].table[j][k]] << "\t";
+					cout << labTweachers[population[i].table[j][k]] << "\t";
 			}
 			cout << endl;
 		}

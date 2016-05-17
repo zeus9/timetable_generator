@@ -234,36 +234,42 @@ individual crossover(int a, int b)
 {
 	individual offspring;
 	for(int i = 0; i<nrooms; i++)
-	{//cout<<"   "<<	i<<endl;
-		vector <int> weekperiod;
-		for(int j = 0; j<nperiodsperweek; j++)
-		{
+	{
 
 
-
-/*cout<<"population";
+//cout<< "\n\n " << i ;
+/*cout<<"\npopulation a";
+cout << "\n\t";
+for(int a = 0; a < nrooms; a++)
+{
+	cout << "r" << a << "\t";
+}
 for(int p = 0; p < nperiodsperweek; p++)
 {
 	cout<<endl<<p<<"\t"	;
 	for(int q = 0; q < nrooms; q++)
 	{
-		if(initial[q][p] == EMPTY)
+		if(population[a].table[q][p] == EMPTY)
 			cout<<"_\t";
-		else if(initial[q][p] == BLOCKED)
+		else if(population[a].table[q][p] == BLOCKED)
 			cout<<"bkd\t";
 		else
-			cout<<teachers[population[b].table[q][p]]<<"\t";
+			cout<<teachers[population[a].table[q][p]]<<"\t";
 	}
-}*/
+}
+*/
 
-
+		vector <int> weekperiod;
+		for(int j = 0; j<nperiodsperweek; j++)
+		{
 			if(initial[i][j] == EMPTY)
 			{
 				weekperiod.push_back(population[b].table[i][j]);
 			}
 		}
 		
-		/*cout<<i;
+		//cout<<i;
+		/*print weekperiod
 		for(int p = 0; p < nperiodsperweek; p++)
 			cout<<" "<<weekperiod[i]<<" ";
 		cout<<endl<<"c1"<<endl;
@@ -273,62 +279,47 @@ for(int p = 0; p < nperiodsperweek; p++)
 		{//cout<<" "<<j<<endl;
 
 			if(initial[i][j] != EMPTY)// || initial[i][j] == BLOCKED)
-			{	//cout<<"c5\n";	
+			{	//cout<<"c1\n";	
 				offspring.table[i][j] = initial[i][j];
 				//cout<<"c2"<<endl;
 			}
 			else 
 			{
-				if(j<crossoversplit)
+				if(j < crossoversplit)
 				{
-					offspring.table[i][j] = population[a].table[i][j];												// Based on the crossover split value, 
+					//cout<<"c3"<<endl;
+					offspring.table[i][j] = population[a].table[i][j];		
+					//cout<<"c4"<<endl;										// Based on the crossover split value, 
 					weekperiod.erase(find(weekperiod.begin(),weekperiod.end(),offspring.table[i][j]));				// offspring is formed with first, portion of
-					//cout<<"c3"<<endl;																									//'a' chromosome and then a portion of 'b'
+					//cout<<"c5"<<endl;																									//'a' chromosome and then a portion of 'b'
 				}																									// chromosome.
 				else 
 				{
+					//cout<<"c5"<<endl;
 					offspring.table[i][j] = weekperiod[0];
 					weekperiod.erase(weekperiod.begin());										
+					//cout<<"c6"<<endl;
 				}
-			}//cout<<"c4"<<endl;
+			}//scout<<"c7"<<endl;
 		}
 		
 
-	/*for(int i = 0; i < nperiodsperweek; i++)
-	{
-		cout<<endl<<i<<"\t";	
-		for(int j = 0; j< nrooms; j++)
-		{
-			if(initial[j][i] == EMPTY)
-				cout<<"_\t";
-			else if(initial[j][i] == BLOCKED)
-				cout<<"BKD\t";
-			else	
-			{
-				if(j >= firstLabRoom && j <= lastLabRoom)
-					{
-						cout<<teachers[offspring.table[j][i]]<<"\t";
-					}	
-				else	
-					cout<<teachers[offspring.table[j][i]]<<"\t";
-			}	
-		}
-	}*/
+/*
 	//output offspring
-/*for(int p = 0; p < nperiodsperweek; p++)
+for(int p = 0; p < nperiodsperweek; p++)
 {
 	cout<<endl<<p<<"\t"	;
 	for(int q = 0; q < nrooms; q++)
 	{
-		if(initial[q][p] == EMPTY)
+		if(offspring.table[q][p] == EMPTY)
 			cout<<"_\t";
-		else if(initial[q][p] == BLOCKED)
+		else if(offspring.table[q][p] == BLOCKED)
 			cout<<"bkd\t";
 		else
 			cout<<teachers[offspring.table[q][p]]<<"\t";
 	}
-}*/
-//end
+}
+*/
 
 	}
 	return offspring;
@@ -490,10 +481,9 @@ void get_initial(string filename = "csv/initialLabs.csv")
 	{
 		for(int i = 0; i < nperiodsperweek && infile.good(); i++)
 		{
-
-			getline(infile,line1,'\n');	// to ignore the initial token of hour no. in the week
+			getline(infile,line1,'\n');		// to ignore the first line of room nos
    			stringstream linestream(line1);			
-			//getline(linestream,var1,',');	//iniitalLabs.csv need to be modified before this is uncommented
+			getline(linestream,var1,',');	
 
 			for(int j = 0; j < nrooms; j++)
 			{
@@ -537,11 +527,11 @@ void get_labInitial(string filename = "csv/initialLabs.csv")
 	if(getline(infile,line1,'\n'))
 	{
 		for(int i = 0; i < nperiodsperweek && infile.good(); i++)
-		{
+		{//cout<<i<<endl;
 
-			getline(infile,line1,'\n');	// to ignore the initial token of hour no. in the week
+			getline(infile,line1,'\n');	// to ignore the initial line of room nos
    			stringstream linestream(line1);			
-			//getline(linestream,var1,',');	
+			getline(linestream,var1,',');	
 
 			for(int j = 0; j < nrooms; j++)
 			{
@@ -582,15 +572,16 @@ void get_labInitial(string filename = "csv/initialLabs.csv")
 }
 
 
-void write_output(string filename = "csv/output.csv")
+void write_output(int minid, string filename = "csv/output.csv")
 {
 	
 	ofstream out;
 	out.open(filename);
 
+	out << "p_no,";
 	for(int i = 0; i < nrooms; i++)
 	{
-		out << "r" << i;
+		out << "r" << i+1;
 		if( i != nrooms-1)
 			out << ",";
 		else
@@ -599,25 +590,18 @@ void write_output(string filename = "csv/output.csv")
 
 	for(int i = 0; i < nperiodsperweek; i++)
 	{
+		out << "p" << i+1 << ",";
 		for(int j = 0; j < nrooms; j++)
-		{			
-			if(initial[j][i] == BLOCKED)
-				out << "BLOCKED";
+		{
+			if(population[minid].table[j][i] == EMPTY)
+				out << "_";
+			else if(population[minid].table[j][i] == BLOCKED)
+				out << "BKD";
 			else if(j >= firstLabRoom && j <= lastLabRoom)
-			{
-				if(labInitial[j][i] == EMPTY)
-					out << "_";
-				else
-					out << labTeachers[labInitial[j][i]];
-			}
+				out << labTeachers[labInitial[j][i]];
 			else
-			{	
-				if(initial[j][i] == EMPTY)
-					out << "_";
-				else
-					out << teachers[initial[j][i]];
-			}
-			
+				out << teachers[population[minid].table[j][i]];
+		
 			if( j != nrooms-1)
 				out << ",";
 			else
@@ -638,7 +622,8 @@ int main()
 	get_variables();
 	//string tempstring;
 	lastLabRoom = firstLabRoom+nLabs-1;
-	cout<<firstLabRoom<<" "<<lastLabRoom<<" "<<nrooms<<endl;
+	//cout<<firstLabRoom<<" "<<lastLabRoom<<" "<<nrooms<<endl;
+	//cout << crossoversplit;
 	get_periodcount();
 	get_labPeriodcount();
 	get_initial();
@@ -657,21 +642,12 @@ int main()
 	}
 	cout<<endl<<endl<<endl;
 
-
-	for(int i = 0; i < nperiodsperweek; i++)
-	{
-		cout<<endl<<i<<"\t";	
-		for(int j = 0; j < nrooms; j++)
-		{
-			cout<<labInitial[j][i]<<" ";
-		}
-	}
-
 */	
 	/*// print labteachers
 	for(int i = 0; i < labTeachers.size(); i++)
 		cout<< i << " " << labTeachers[i]<< " \n";
 	*/
+
 	cout<<"\ninitial matrix : \n";
 	for(int i = 0; i < nperiodsperweek; i++)
 	{
@@ -777,6 +753,7 @@ int main()
 			}	
 		}
 		population.push_back(newindividual);
+*/
 /*
 //display individual for checking
 	cout<<endl<<endl<<i<<endl;
@@ -793,9 +770,9 @@ int main()
 		}
 		cout << endl;
 	}	
-//*/	
-/*	
-	}
+
+
+}
 */	
 
 
@@ -891,11 +868,11 @@ elapsedgenerations++;}
 	cout << endl << "RESULT (fitness: " << population[minid].fitness << ")" << endl;
 
 	for(int i = 0; i <= nrooms; i++)
-		cout << i << "\t";
+		cout << "r" << i << "\t";
 	cout << endl << endl;
 
 	for(int i = 0; i<nperiodsperweek; i++)
-	{	cout << i+1 << "\t";
+	{	cout << "p" << i+1 << "\t";
 		for(int j = 0; j<nrooms; j++)
 		{
 			if(population[minid].table[j][i] == EMPTY)
@@ -910,8 +887,8 @@ elapsedgenerations++;}
 		cout << endl;
 	}
 	
-	write_output();
+	write_output(minid);
 
-	cout<<endl<<endl;
+	cout << endl << endl;
 	return 0;
 }
