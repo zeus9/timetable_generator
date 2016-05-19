@@ -1,8 +1,10 @@
 # Timetable Generator
 Generates a timetable for my university using a genetic algorithm
 
-Presently the program is a bunch of cpp and python files linked by a bash script(ttgen.sh).
-The input is given to the program as .csv files, which is the university data.
+Run 
+$ sudo ./ttgen
+in your terminal to run the program. An initial gui would pop up where you can change the default values, if needed.
+The rest of the input is given to the program as .csv files, which is the university data. The default data(real data fo [Amrita University][https://www.amrita.edu/] is included with the program. 
 
-Sophistication of the software using a particular framework, say qt to make it a proper desktop app is up for grabs for anyone if they are interested.
-The current development branch is 'labs'.
+Presently the program is a bunch of cpp and python files linked by a bash script(ttgen.sh).
+Sophistication of the software using a particular framework, say qt to make it a proper desktop app is the plan forward once the genetic algorithm is completely optimized.
