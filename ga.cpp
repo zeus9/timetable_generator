@@ -572,7 +572,7 @@ void get_labInitial(string filename = "csv/initialLabs.csv")
 }
 
 
-void write_output(int minid, string filename = "csv/output.csv")
+void write_output(int output_flag, int minid, string filename = "csv/output.csv")
 {
 	
 	ofstream out;
@@ -610,7 +610,11 @@ void write_output(int minid, string filename = "csv/output.csv")
 	}
 	out.close();
 
-	cout<<"\n\nOutput written to : " << filename;
+	if(output_flag)
+		cout<<"\n\nOutput written to : " << filename;
+	else	
+		return;
+	
 }
 
 
@@ -792,6 +796,33 @@ int main()
 		//compute fitness, find minimum
 		int minid = getminfitnessid();
 		
+		//output stuff
+		write_output(0,minid);	
+		/*cout << endl << "fitness: " << population[minid].fitness << endl;
+
+	for(int i = 0; i <= nrooms; i++)
+		cout << "r" << i << "\t";
+	cout << endl << endl;
+
+	for(int i = 0; i<nperiodsperweek; i++)
+	{	cout << "p" << i+1 << "\t";
+		for(int j = 0; j<nrooms; j++)
+		{
+			if(population[minid].table[j][i] == EMPTY)
+				cout<<"_\t";
+			else if(population[minid].table[j][i] == BLOCKED)
+				cout<<"BKD\t";
+			else if(j >= firstLabRoom && j <= lastLabRoom)
+				cout << labTeachers[labInitial[j][i]] << "\t";
+			else
+				cout << teachers[population[minid].table[j][i]] << "\t";
+		}
+		cout << endl;
+	}
+*/
+
+
+
 		double minvalue = population[minid].fitness;
 		if(elitism)																		// if Eltisim = 1, it algorithm will isolate the fittest chromosome of
 		{																				// population from crssover and mutation processes.
@@ -887,7 +918,7 @@ elapsedgenerations++;}
 		cout << endl;
 	}
 	
-	write_output(minid);
+	write_output(1,minid);
 
 	cout << endl << endl;
 	return 0;
