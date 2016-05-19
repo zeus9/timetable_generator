@@ -4,6 +4,11 @@ todolist
 #csv direcory
 csv/.~*
 csv/variables.csv
+csv/labCsv/labVariables.csv
+csv/labCsv/labConflicts.csv
+csv/initialLabs.csv
+csv/output.csv
+csv/labCsv/.~*
 
 #executables
 a.out
