@@ -3,6 +3,7 @@ Generates a timetable for my university using a genetic algorithm.
 
 Run 
 $ sudo ./ttgen
+
 in your terminal to execute the program. An initial gui would pop up where you can change the default values, if needed.
 The rest of the input is given to the program as .csv files:<br>
 - initial.csv<br>

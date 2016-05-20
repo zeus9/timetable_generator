@@ -98,6 +98,7 @@ bool randombool(double chance)														// Calculates probability for mutati
 	if(randomint(0,1000000) < (long long) 1000000*chance) return true; else return false;
 }
 
+
 //********* The getminfitnessid() function is used to calculate the fitness of each chromosome in the population. Lower the fitness value, fitter the chromosome. **********//
 
 int getminfitnessid()
