@@ -904,7 +904,11 @@ elapsedgenerations++;}
 	cout << endl << endl;
 
 	for(int i = 0; i<nperiodsperweek; i++)
-	{	cout << "p" << i+1 << "\t";
+	{	
+		if(i%(nperiodsperweek/5) == 0)
+			cout<<endl;
+
+		cout << "p" << i+1 << "\t";
 		for(int j = 0; j<nrooms; j++)
 		{
 			if(population[minid].table[j][i] == EMPTY)
