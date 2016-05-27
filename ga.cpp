@@ -830,7 +830,7 @@ int main()
 			newpopulation.push_back(population[minid]);
 		}
 			
-			//cout<<"shit0\n";
+			
 		
 /*
 //print initial	
@@ -859,15 +859,15 @@ elapsedgenerations++;}
 */
 		//crossover;
 		for(int i = elitismoffset; i<population.size(); i++)
-		{//cout<<"shit1\n";
+		{//cout<<"test1\n";
 			int a = tournamentselection();
 			int b = tournamentselection();
-			//cout<<"shit2\n";
+			//cout<<"test2\n";
 			individual offspring = crossover(a,b);
-			//cout<<"shit3\n";
+			//cout<<"test3\n";
 			newpopulation.push_back(offspring);
 		}
-//cout<<"hi\n";
+//cout<<"test\n";
 		
 		//mutate;
 		for(int i = elitismoffset; i<population.size(); i++)
@@ -878,7 +878,7 @@ elapsedgenerations++;}
 				{
 					int a, b;
 					do 
-					{//cout<<"shit4\n";
+					{//cout<<"test4\n";
 						a = randomint(0,nperiodsperweek-1);
 						b = randomint(0,nperiodsperweek-1);
 					} while(initial[j][a] != EMPTY || initial[j][a] == BLOCKED || initial[j][b] != EMPTY || initial[j][b] == BLOCKED);

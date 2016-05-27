@@ -105,7 +105,7 @@ int getminfitnessid()
 	
 	for(int i = 0; i < population.size(); i++)
 	{
-		//cout<<"HI"<<i<<"\n";
+		//cout<<"test"<<i<<"\n";
 		tempfitness = 0;
 		first2Hours = 0;
 		confAvail = 0;
@@ -125,7 +125,7 @@ int getminfitnessid()
 			}	
 		}
 
-		count = 0;	//very fucking important, took 3 days to find the bug caused without this piece of shit
+		count = 0;	
 		//calculate conflicts within lab classes
 		for(int j = 0; j < labslots; j++)
 		{
@@ -348,7 +348,7 @@ void get_periodcount(string filename = "csv/periodcount.csv")
 	string var1, var2, line1, line2;
 	
 	if(getline(in,line1,'\n'))
-	{	//cout<<"Ji\n";
+	{	//cout<<"test\n";
 		for(int i = 0; i < nteachers && in.good(); i++)
 		{
 			getline(in,line1,'\n');
